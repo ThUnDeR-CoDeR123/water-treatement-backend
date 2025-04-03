@@ -1,0 +1,13 @@
+services:
+  watershooters:
+      build: ./WaterShooters  # Path to the auth service Dockerfile
+      ports:
+        - "8005:8005"
+      env_file:
+        - ./WaterShooters/.env
+      networks:
+        - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
