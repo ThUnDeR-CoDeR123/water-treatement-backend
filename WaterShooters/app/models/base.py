@@ -4,7 +4,7 @@ import json
 from sqlalchemy.orm import DeclarativeBase
 from typing import List, Optional
 from sqlalchemy import (
-    String, Integer, Boolean, DateTime, ForeignKey, func,Text,Float
+    String, Integer, Boolean, DateTime, ForeignKey, func, Text,Float
 )
 from sqlalchemy.orm import ( Mapped, mapped_column, relationship)
 # -----------------------------------------------
@@ -346,7 +346,7 @@ class PlantFlowParameter(Base):
     plant: Mapped["Plant"] = relationship("Plant", back_populates="plant_flow_parameters")
     flow_parameter: Mapped["FlowParameter"] = relationship("FlowParameter", back_populates="plant_flow_parameters")
     flow_parameter_logs: Mapped[List["FlowParameterLog"]] = relationship("FlowParameterLog", back_populates="plant_flow_parameter", cascade="all, delete-orphan")
-
+    del_flag: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
 
 # Association Table: PlantType to FlowParameter
 class PlantTypeToFlowParameter(Base):

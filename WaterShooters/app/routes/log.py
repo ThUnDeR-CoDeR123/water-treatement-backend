@@ -4,7 +4,7 @@ from typing import List
 from app.crud.log import *
 from app.schemas.logs import FlowParameterLogSchema, EquipmentLogSchema, ChemicalLogSchema, DailyLogSchema
 from app.database import get_db
-from app.routes.jwt import get_current_user,getPriviledgeUser
+from app.routes.jwt import get_current_user,getPriviledgeUser,getAdmin
 from app.models.base import User
 
 logRouter = APIRouter(prefix="/api/v1/logs", tags=["Logs"])
@@ -23,22 +23,22 @@ def create_log(
     
 @logRouter.post("/create/flowparameter")
 def create_log(
-    log: EquipmentLogSchema,
+    log: FlowParameterLogSchema,
     db: Session = Depends(get_db),
     current_user: User = Depends(getPriviledgeUser)
 ):
     try:
-        return createEquipmentLog(db, log,current_user.user_id)
+        return createFlowParameterLog(db, log,current_user.user_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 @logRouter.post("/create/chemical")
 def create_log(
-    log: EquipmentLogSchema,
+    log: ChemicalLogSchema,
     db: Session = Depends(get_db),
     current_user: User = Depends(getPriviledgeUser)
 ):
     try:
-        return createEquipmentLog(db, log,current_user.user_id)
+        return createChemicalLog(db, log,current_user.user_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -75,3 +75,74 @@ def get_chemical_logs(
         return getChemicalLogs(db, log, current_user.user_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+@logRouter.put("/update/chemical", response_model=ChemicalLogSchema)
+def update_chemical_logs(
+    log: ChemicalLogSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        return updateChemicalLogs(db, log, current_user.user_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@logRouter.put("/update/equipment", response_model=EquipmentLogSchema)
+def update_equipment_logs(
+    log: EquipmentLogSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        return updateEquipmentLogs(db, log, current_user.user_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@logRouter.put("/update/flowparameter", response_model=FlowParameterLogSchema)
+def update_flow_parameter_logs(
+    log: FlowParameterLogSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        return updateFlowParameterLogs(db, log, current_user.user_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@logRouter.delete("/delete/equipment")
+def delete_equipment_logs(
+    log: EquipmentLogSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(getAdmin)
+):
+    try:
+        deleteEquipmentLog(db, log)
+        return {"message": "Equipment log deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@logRouter.delete("/delete/flowparameter")
+def delete_flow_parameter_logs(
+    log: FlowParameterLogSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(getAdmin)
+):
+    try:
+        deleteFlowParameterLog(db, log)
+        return {"message": "Flow parameter log deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@logRouter.delete("/delete/chemical")
+def delete_chemical_logs(
+    log: ChemicalLogSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(getAdmin)
+):
+    try:
+        deleteChemicalLog(db, log)
+        return {"message": "Chemical log deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    

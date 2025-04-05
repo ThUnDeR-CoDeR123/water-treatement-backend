@@ -16,9 +16,9 @@ class DailyLogSchema(BaseModel):
 class FlowParameterLogSchema(BaseModel):
     flow_parameter_log_id: Optional[int]= None
     daily_log_id: Optional[int]= None
-    plant_flow_parameter_id: Optional[int]
-    inlet_value: Optional[float]
-    outlet_value: Optional[float]
+    plant_flow_parameter_id: Optional[int]= None
+    inlet_value: Optional[float]= None
+    outlet_value: Optional[float]= None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
     shift : Optional[int]=0 #0 for morning, 1 for evening, 2 for night
@@ -34,8 +34,8 @@ class EquipmentLogSchema(BaseModel):
     plant_id : Optional[int] = None
     equipment_log_id: Optional[int] =None
     daily_log_id: Optional[int] = None
-    plant_equipment_id: Optional[int]
-    equipment_status: Optional[int]
+    plant_equipment_id: Optional[int]= None
+    equipment_status: Optional[int]= None
     maintenance_done: Optional[bool] = False
     equipment_remark : Optional[str] = None
     shift : Optional[int]=0 #0 for morning, 1 for evening, 2 for night
@@ -48,9 +48,9 @@ class ChemicalLogSchema(BaseModel):
     plant_id : Optional[int] = None
     chemical_log_id: Optional[int] = None
     daily_log_id: Optional[int] = None 
-    plant_chemical_id: Optional[int]
-    quantity_used: Optional[float]
-    quantity_left: Optional[float]
+    plant_chemical_id: Optional[int]= None
+    quantity_used: Optional[float]= None
+    quantity_left: Optional[float]= None
     sludge_discharge: Optional[bool]  = False
     shift : Optional[int]=0 #0 for morning, 1 for evening, 2 for night
     start_date: Optional[datetime] = None
