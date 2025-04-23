@@ -9,7 +9,7 @@ class RoleSchema(BaseModel):
     del_flag: Optional[bool]  = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ComplaintSuggestionSchema(BaseModel):
@@ -24,7 +24,7 @@ class ComplaintSuggestionSchema(BaseModel):
     del_flag: Optional[bool]  = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserSchema(BaseModel):
@@ -49,7 +49,7 @@ class UserSchema(BaseModel):
     page: Optional[int]  = None
     limit: Optional[int]  = None
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class LoginRequest(BaseModel):

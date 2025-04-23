@@ -11,7 +11,7 @@ class DailyLogSchema(BaseModel):
     del_flag: Optional[bool]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class FlowParameterLogSchema(BaseModel):
     flow_parameter_log_id: Optional[int]= None
@@ -26,7 +26,7 @@ class FlowParameterLogSchema(BaseModel):
 
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 
@@ -42,7 +42,7 @@ class EquipmentLogSchema(BaseModel):
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ChemicalLogSchema(BaseModel):
     plant_id : Optional[int] = None
@@ -57,5 +57,5 @@ class ChemicalLogSchema(BaseModel):
     end_date: Optional[datetime] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 

@@ -21,7 +21,7 @@ class PlantSchema(BaseModel):
     page: Optional[int] = 1
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PlantTypeSchema(BaseModel):
     plant_type_id: Optional[int] = None
@@ -33,7 +33,7 @@ class PlantTypeSchema(BaseModel):
     del_flag: Optional[bool] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PlantFlowParameterSchema(BaseModel):
     plant_flow_parameter_id: Optional[int] = None
@@ -43,7 +43,7 @@ class PlantFlowParameterSchema(BaseModel):
     tolerance: Optional[float] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PlantChemicalSchema(BaseModel):
     plant_chemical_id: Optional[int] = None
@@ -54,7 +54,7 @@ class PlantChemicalSchema(BaseModel):
     del_flag: Optional[bool] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class PlantEquipmentSchema(BaseModel):
@@ -68,7 +68,7 @@ class PlantEquipmentSchema(BaseModel):
     del_flag: Optional[bool] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class FlowParameterSchema(BaseModel):
     flow_parameter_id: Optional[int] = None
@@ -80,7 +80,7 @@ class FlowParameterSchema(BaseModel):
     del_flag: Optional[bool] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class EquipmentSchema(BaseModel):
     equipment_id: Optional[int] = None
@@ -93,7 +93,7 @@ class EquipmentSchema(BaseModel):
     del_flag: Optional[bool] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ChemicalSchema(BaseModel):
     chemical_id: Optional[int] = None
@@ -105,4 +105,4 @@ class ChemicalSchema(BaseModel):
     del_flag: Optional[bool] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
