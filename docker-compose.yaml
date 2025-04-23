@@ -1,12 +1,46 @@
 services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--api.dashboard=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=prasverma@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    networks:
+      - microservices-network
+
   watershooters:
-      build: ./WaterShooters  # Path to the auth service Dockerfile
-      ports:
-        - "8005:8005"
-      env_file:
-        - ./WaterShooters/.env
-      networks:
-        - microservices-network
+    build: ./WaterShooters
+    container_name: watershooters_service
+    expose:
+      - 8005  # Internal access only
+    env_file:
+      - ./WaterShooters/.env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.watershooters.rule=Host(`api.watershooters.in`) || PathPrefix(`/`)"
+      - "traefik.http.routers.watershooters.entrypoints=websecure"
+      - "traefik.http.routers.watershooters.tls.certresolver=myresolver"
+      - "traefik.http.services.watershooters.loadbalancer.server.port=8005"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
+      - "traefik.http.routers.watershooters.middlewares=cors"
+    networks:
+      - microservices-network
 
 networks:
   microservices-network:
