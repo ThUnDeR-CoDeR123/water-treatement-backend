@@ -38,15 +38,14 @@ async def download_all_images():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     zip_filename = f"images_{timestamp}.zip"
     zip_filepath = os.path.join(UPLOAD_DIR, zip_filename)
+    zip_base = os.path.join(UPLOAD_DIR, f"images_{timestamp}")
     
     try:
         # Create a zip file containing all images
         shutil.make_archive(
-            os.path.join(UPLOAD_DIR, f"images_{timestamp}"),
-            'zip',
-            UPLOAD_DIR,
-            base_dir='.',
-            include_dir=False
+            base_name=zip_base,
+            format='zip',
+            root_dir=UPLOAD_DIR
         )
         
         # Return the zip file
@@ -56,9 +55,6 @@ async def download_all_images():
             filename=zip_filename
         )
         
-        # Clean up - remove the zip file after sending
-        # Note: Due to async nature, this might need to be handled differently
-        # in a production environment to ensure proper cleanup
         return response
     except Exception as e:
         return {"error": f"Failed to create zip file: {str(e)}"}, 500
