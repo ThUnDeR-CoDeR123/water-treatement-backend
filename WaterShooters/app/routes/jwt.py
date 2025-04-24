@@ -151,9 +151,9 @@ def authenticate_user(username: str, password: str, db: Session):
     #THSI FUNCTION RETURNS A USER DATABASE MODEL or FALSE
     user=getUserByEmail(username,db)
 
-    user.last_login = datetime.now(timezone.utc)
     if not user:
         return False
+    user.last_login = datetime.now(timezone.utc)
     
     if not verify_password(plain_password=password, hashed_password=user.password):
         return False
