@@ -2,6 +2,7 @@ from fastapi import FastAPI,HTTPException,Request
 from app.routes.users import tokenRouter
 from app.routes.plant import plantrouter
 from app.routes.log import logRouter
+from app.routes.images import imageRouter
 
 from app.database import  engine
 from app.models.base import Base
@@ -34,6 +35,7 @@ app.add_middleware(
 app.include_router(plantrouter)
 app.include_router(logRouter)
 app.include_router(tokenRouter)
+app.include_router(imageRouter)
 
 @app.get('/')
 def home():

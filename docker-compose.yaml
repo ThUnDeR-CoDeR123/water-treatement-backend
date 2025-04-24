@@ -27,6 +27,8 @@ services:
       - 8005  # Internal access only
     env_file:
       - ./WaterShooters/.env
+    volumes:
+      - images_data:/app/images
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.watershooters.rule=Host(`api.watershooters.in`) || PathPrefix(`/`)"
@@ -45,3 +47,6 @@ services:
 networks:
   microservices-network:
     driver: bridge
+
+volumes:
+  images_data:
