@@ -8,7 +8,20 @@ from app.database import get_db
 
 # Create a new user
 def createUser(db: Session, user: UserSchema) -> User:
-    new_user = User(**user.model_dump(exclude_unset=True))
+    new_user = User(
+        email=user.email,
+        password=user.password,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        phone_no=user.phone_no,
+        address=user.address,
+        qualification=user.qualification,
+        DOB=user.DOB,
+        is_verified=True,
+        is_admin=user.is_admin if user.is_admin is not None else False,
+        role_id=1 if user.is_admin else 3,  # Assuming role_id 1 is for admin and 2 for user
+        del_flag=False
+    )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
