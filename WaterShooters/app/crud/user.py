@@ -11,6 +11,7 @@ def createUser(db: Session, user: UserSchema) -> User:
     new_user = User(
         email=user.email,
         password=user.password,
+        aadhar_no=user.aadhar_no,
         first_name=user.first_name,
         last_name=user.last_name,
         phone_no=user.phone_no,
