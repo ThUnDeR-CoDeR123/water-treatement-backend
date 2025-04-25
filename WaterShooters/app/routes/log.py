@@ -3,7 +3,13 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.crud import log as crud
 from app.crud.log import *
-from app.schemas.logs import FlowParameterLogSchema, EquipmentLogSchema, ChemicalLogSchema, DailyLogSchema, FlowLog, FlowLogCreate, FlowLogUpdate
+from app.schemas.logs import (
+    FlowParameterLogSchema, 
+    EquipmentLogSchema, 
+    ChemicalLogSchema, 
+    DailyLogSchema,
+    FlowLogSchema
+)
 from app.database import get_db
 from app.routes.jwt import get_current_user,getPriviledgeUser,getAdmin
 from app.models.base import User
@@ -45,7 +51,7 @@ def create_log(
 
 @logRouter.post("/create/flow")
 def create_flow_log(
-    log: schemas.FlowLogSchema,
+    log: FlowLogSchema,
     db: Session = Depends(get_db),
     current_user: User = Depends(getPriviledgeUser)
 ):
@@ -90,7 +96,7 @@ def get_chemical_logs(
     
 @logRouter.get("/flow")
 def get_flow_logs(
-    log: schemas.FlowLogSchema,
+    log: FlowLogSchema,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -132,9 +138,9 @@ def update_flow_parameter_logs(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@logRouter.put("/update/flow", response_model=schemas.FlowLogSchema)
+@logRouter.put("/update/flow", response_model=FlowLogSchema)
 def update_flow_log(
-    log: schemas.FlowLogSchema,
+    log: FlowLogSchema,
     db: Session = Depends(get_db),
     current_user: User = Depends(getPriviledgeUser)
 ):
@@ -181,7 +187,7 @@ def delete_chemical_logs(
 
 @logRouter.delete("/delete/flow")
 def delete_flow_log(
-    log: schemas.FlowLogSchema,
+    log: FlowLogSchema,
     db: Session = Depends(get_db),
     current_user: User = Depends(getAdmin)
 ):
