@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from typing import List, Optional
-from app.models.base import Plant,User,PlantTypeToChemical,PlantTypeToEquipment,PlantTypeToFlowParameter,PlantChemical,PlantEquipment,PlantFlowParameter
+from app.models.base import Plant, User, PlantType, PlantTypeToChemical, PlantTypeToEquipment, PlantTypeToFlowParameter, PlantChemical, PlantEquipment, PlantFlowParameter
 from app.schemas.plant import PlantSchema
 from fastapi import HTTPException
 
@@ -113,3 +113,8 @@ def deletePlant(db: Session, plant_id: int) -> bool:
     existing_plant.del_flag = True
     db.commit()
     return True
+
+# Get all plant types
+def getAllPlantTypes(db: Session) -> List["PlantType"]:
+    """Get all non-deleted plant types"""
+    return db.query(PlantType).filter(PlantType.del_flag == False).all()

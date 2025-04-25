@@ -7,11 +7,12 @@ from app.crud.plant import (
     getAllPlants,
     updatePlant,
     deletePlant,
-    getPlantsByPlantTypeId
+    getPlantsByPlantTypeId,
+    getAllPlantTypes
 )
-from app.schemas.plant import PlantSchema
+from app.schemas.plant import PlantSchema, PlantTypeSchema
 from app.database import get_db
-from app.models.base import User
+from app.models.base import User, PlantType
 from app.routes.jwt import get_current_user,getAdmin
 
 plantrouter = APIRouter(prefix="/api/v1/plant", tags=["Plant"])
@@ -85,3 +86,11 @@ def delete_plant(
         raise HTTPException(status_code=403, detail="Permission denied")
     deletePlant(db, plant_id)
     return {"message": "Plant deleted successfully"}
+
+@plantrouter.get("/types", response_model=List[PlantTypeSchema])
+def get_plant_types(
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    """Get all plant types"""
+    return getAllPlantTypes(db)
