@@ -19,8 +19,8 @@ def createUser(db: Session, user: UserSchema) -> User:
         qualification=user.qualification,
         DOB=user.DOB,
         is_verified=True,
-        is_admin=user.is_admin if user.is_admin is not None else False,
-        role_id=1 if user.is_admin else 3,  # Assuming role_id 1 is for admin and 2 for user
+        is_admin=True if user.role_id==1 else False,
+        role_id=user.role_id,  # Assuming role_id 1 is for admin and 2 for user
         del_flag=False
     )
     db.add(new_user)
