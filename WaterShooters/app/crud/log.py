@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
+from app import models, schemas
 from app.schemas.logs import EquipmentLogSchema, FlowParameterLogSchema, ChemicalLogSchema
-from app.models.base import DailyLog, EquipmentLog, FlowParameterLog, ChemicalLog, PlantEquipment, PlantFlowParameter, PlantChemical
+from app.models.base import DailyLog, EquipmentLog, FlowParameterLog, ChemicalLog, PlantEquipment, PlantFlowParameter, PlantChemical, FlowLog
 from fastapi import HTTPException
 from typing import List
 
@@ -226,8 +227,99 @@ def getFowParameterLogs(db: Session, log: FlowParameterLogSchema, user_id: int) 
         raise HTTPException(status_code=404, detail="Logs not found")
     return flowparameterlogs
 
+def create_flow_log(db: Session, log: schemas.FlowLogSchema, user_id: int):
+    # First check for existing daily log
+    query = db.query(DailyLog).filter(DailyLog.del_flag == False)
+    if log.plant_id is not None:
+        query = query.filter(DailyLog.plant_id == log.plant_id)
+    if user_id is not None:
+        query = query.filter(DailyLog.created_by == user_id)
+    if log.shift is not None:
+        query = query.filter(DailyLog.shift == log.shift)
+    query = query.filter(func.date(DailyLog.created_at) == func.date(func.now()))  # Compare only date, not time
+    existing_log = query.first()
 
+    if existing_log:
+        # If a daily log exists, create a new flow log entry
+        new_log = FlowLog(
+            plant_id=log.plant_id,
+            daily_log_id=existing_log.log_id,
+            inlet_value=log.inlet_value,
+            outlet_value=log.outlet_value,
+            shift=log.shift,
+            created_by=user_id
+        )
+        db.add(new_log)
+        db.commit()
+        db.refresh(new_log)
+        return new_log
+    else:
+        # Create a daily log entry first
+        new_daily_log = DailyLog(
+            plant_id=log.plant_id,
+            shift=log.shift,
+            created_by=user_id
+        )
+        db.add(new_daily_log)
+        db.commit()
 
+        # Then create the flow log entry
+        new_log = FlowLog(
+            plant_id=log.plant_id,
+            daily_log_id=new_daily_log.log_id,
+            inlet_value=log.inlet_value,
+            outlet_value=log.outlet_value,
+            shift=log.shift,
+            created_by=user_id
+        )
+        db.add(new_log)
+        db.commit()
+        return new_log
+
+def get_flow_logs(db: Session, log: schemas.FlowLogSchema) -> List[models.FlowLog]:
+    query = db.query(models.FlowLog).filter(models.FlowLog.del_flag == False)
+    if log.plant_id is not None:
+        query = query.filter(models.FlowLog.plant_id == log.plant_id)
+    if log.start_date is not None:
+        query = query.filter(models.FlowLog.created_at >= log.start_date)
+    if log.end_date is not None:
+        query = query.filter(models.FlowLog.created_at <= log.end_date)
+    if log.shift is not None:
+        query = query.filter(models.FlowLog.shift == log.shift)
+    flow_logs = query.all()
+    if not flow_logs:
+        raise HTTPException(status_code=404, detail="Flow logs not found")
+    return flow_logs
+
+def update_flow_log(db: Session, log: schemas.FlowLogSchema) -> models.FlowLog:
+    flow_log = db.query(models.FlowLog).filter(
+        models.FlowLog.flow_log_id == log.flow_log_id,
+        models.FlowLog.del_flag == False
+    ).first()
+    if not flow_log:
+        raise HTTPException(status_code=404, detail="Flow log not found")
+
+    if log.inlet_value is not None:
+        flow_log.inlet_value = log.inlet_value
+    if log.outlet_value is not None:
+        flow_log.outlet_value = log.outlet_value
+    if log.shift is not None:
+        flow_log.shift = log.shift
+        
+    db.commit()
+    db.refresh(flow_log)
+    return flow_log
+
+def delete_flow_log(db: Session, log: schemas.FlowLogSchema) -> bool:
+    flow_log = db.query(models.FlowLog).filter(
+        models.FlowLog.flow_log_id == log.flow_log_id,
+        models.FlowLog.del_flag == False
+    ).first()
+    if not flow_log:
+        raise HTTPException(status_code=404, detail="Flow log not found")
+    flow_log.del_flag = True
+    db.commit()
+    return True
 
 def updateChemicalLogs(db: Session, log: ChemicalLogSchema, user_id: int) -> List[ChemicalLogSchema]:
     chemical_log = db.query(ChemicalLog).filter(ChemicalLog.del_flag == False, ChemicalLog.chemical_log_id==log.chemical_log_id).first()

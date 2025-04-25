@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+from app.crud import log as crud
 from app.crud.log import *
-from app.schemas.logs import FlowParameterLogSchema, EquipmentLogSchema, ChemicalLogSchema, DailyLogSchema
+from app.schemas.logs import FlowParameterLogSchema, EquipmentLogSchema, ChemicalLogSchema, DailyLogSchema, FlowLog, FlowLogCreate, FlowLogUpdate
 from app.database import get_db
 from app.routes.jwt import get_current_user,getPriviledgeUser,getAdmin
 from app.models.base import User
@@ -42,6 +43,17 @@ def create_log(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@logRouter.post("/create/flow")
+def create_flow_log(
+    log: schemas.FlowLogSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(getPriviledgeUser)
+):
+    try:
+        return crud.create_flow_log(db, log, current_user.user_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Fetch logs for a specific entity
 @logRouter.get("/equipment", response_model=List[EquipmentLogSchema])
 def get_equipment_logs(
@@ -76,6 +88,16 @@ def get_chemical_logs(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
+@logRouter.get("/flow")
+def get_flow_logs(
+    log: schemas.FlowLogSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        return crud.get_flow_logs(db, log)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @logRouter.put("/update/chemical", response_model=ChemicalLogSchema)
 def update_chemical_logs(
@@ -107,6 +129,17 @@ def update_flow_parameter_logs(
 ):
     try:
         return updateFlowParameterLogs(db, log, current_user.user_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@logRouter.put("/update/flow", response_model=schemas.FlowLogSchema)
+def update_flow_log(
+    log: schemas.FlowLogSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(getPriviledgeUser)
+):
+    try:
+        return crud.update_flow_log(db, log)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -145,4 +178,15 @@ def delete_chemical_logs(
         return {"message": "Chemical log deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+@logRouter.delete("/delete/flow")
+def delete_flow_log(
+    log: schemas.FlowLogSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(getAdmin)
+):
+    try:
+        crud.delete_flow_log(db, log)
+        return {"message": "Flow log deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

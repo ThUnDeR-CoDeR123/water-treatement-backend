@@ -406,7 +406,7 @@ class DailyLog(Base):
     flow_parameter_logs: Mapped[List["FlowParameterLog"]] = relationship("FlowParameterLog",back_populates="daily_log",cascade="all, delete-orphan")
     equipment_logs: Mapped[List["EquipmentLog"]] = relationship("EquipmentLog",back_populates="daily_log",cascade="all, delete-orphan")
     plant_chemical_logs: Mapped[List["ChemicalLog"]] = relationship("ChemicalLog",back_populates="daily_log",cascade="all, delete-orphan")
-
+    flow_logs: Mapped[List["FlowLog"]] = relationship("FlowLog", back_populates="daily_log", cascade="all, delete-orphan")
 
 
     def __repr__(self) -> str:
@@ -414,7 +414,22 @@ class DailyLog(Base):
             f"<DailyLog(log_id={self.log_id}, plant_id={self.plant_id}, shift={self.shift})>"
         )
 
+class FlowLog(Base):
+    __tablename__ = "flow_log"
 
+    flow_log_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    daily_log_id: Mapped[int] = mapped_column(Integer, ForeignKey("dailylog.log_id"), nullable=False)
+    plant_id: Mapped[int] = mapped_column(Integer, ForeignKey("plant.plant_id"), nullable=False)
+    inlet_value: Mapped[float] = mapped_column(Float, nullable=False)
+    outlet_value: Mapped[float] = mapped_column(Float, nullable=False)
+    created_by: Mapped[int] = mapped_column(Integer, ForeignKey("user.user_id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+    del_flag: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+
+    # Relationships
+    daily_log: Mapped["DailyLog"] = relationship("DailyLog", back_populates="flow_logs")
+    plant: Mapped["Plant"] = relationship("Plant")
 # FLOW PARAMETER LOG
 class FlowParameterLog(Base):
     __tablename__ = "flowparameterlog"
