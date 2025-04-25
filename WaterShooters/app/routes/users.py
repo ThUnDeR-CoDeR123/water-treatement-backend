@@ -103,8 +103,15 @@ async def create_user(user: UserSchema ,db: Annotated[Session, Depends(get_db)])
 
             user =createUser(db,user)
 
+            json={            
+                        "sub": user.user_id,
+                        "email": user.email,
+                        "role": user.role_id,
+                        "is_admin" : user.is_admin
+                    }
+            jwt = create_access_token(json,flag="LOGIN")
             # otp=createOtp(forgetEmail(email=user.email),db)
-            return user.user_id
+            return JSONResponse(status_code=200, content={"token": jwt})  
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=503, detail=f"{str(e)}")
