@@ -270,8 +270,6 @@ def updateFlowParameterLogs(db: Session, log: FlowParameterLogSchema, user_id: i
 
     if log.value is not None:
         flow_parameter_log.value = log.value
-    if log.outlet_value is not None:
-        flow_parameter_log.outlet_value = log.outlet_value
     if log.shift is not None:
         flow_parameter_log.shift = log.shift
     db.commit()
