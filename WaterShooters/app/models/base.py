@@ -438,7 +438,7 @@ class FlowParameterLog(Base):
     def __repr__(self) -> str:
         return (
             f"<FlowParameterLog(flow_parameter_log_id={self.flow_parameter_log_id}, "
-            f"inlet_value={self.inlet_value}, outlet_value={self.outlet_value})>"
+            f"value={self.value})>"
         )
 
 
