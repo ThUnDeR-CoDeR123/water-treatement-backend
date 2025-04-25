@@ -426,8 +426,7 @@ class FlowParameterLog(Base):
     created_by: Mapped[int] = mapped_column(Integer,ForeignKey("user.user_id"),nullable=False)
     
     shift: Mapped[int] = mapped_column(Integer, nullable=False)#0 for morning, 1 for evening, 2 for night
-    inlet_value: Mapped[float] = mapped_column(Float, nullable=False)
-    outlet_value: Mapped[float] = mapped_column(Float, nullable=False)
+    value: Mapped[float] = mapped_column(Float, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     del_flag: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
