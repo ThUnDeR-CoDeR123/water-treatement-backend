@@ -73,9 +73,9 @@ class User(Base):
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
 
-    aadhar_no: Mapped[Optional[int]] = mapped_column(Integer, unique=True, nullable=True)
+    aadhar_no: Mapped[Optional[str]] = mapped_column(String(12), unique=True, nullable=False)
     name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    phone_no: Mapped[Optional[str]] = mapped_column(String(20), unique=True, nullable=True)
+    phone_no: Mapped[Optional[str]] = mapped_column(String(10), unique=True, nullable=False)
     address: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     qualification: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     DOB: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)

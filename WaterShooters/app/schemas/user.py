@@ -31,7 +31,7 @@ class UserSchema(BaseModel):
     user_id: Optional[int] =None
     email: Optional[EmailStr] = None
     password: Optional[str] = None
-    aadhar_no: Optional[int] = None
+    aadhar_no: Optional[str] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     phone_no: Optional[str] = None
