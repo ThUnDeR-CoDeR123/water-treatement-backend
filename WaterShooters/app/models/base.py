@@ -1,4 +1,3 @@
-
 from datetime import datetime
 import json
 from sqlalchemy.orm import DeclarativeBase
@@ -76,7 +75,7 @@ class User(Base):
 
     aadhar_no: Mapped[Optional[int]] = mapped_column(Integer, unique=True, nullable=True)
     name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    phone_no: Mapped[Optional[int]] = mapped_column(Integer, unique=True, nullable=True)
+    phone_no: Mapped[Optional[str]] = mapped_column(String(20), unique=True, nullable=True)
     address: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     qualification: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     DOB: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)

@@ -34,7 +34,7 @@ class UserSchema(BaseModel):
     aadhar_no: Optional[int] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    phone_no: Optional[int] = None
+    phone_no: Optional[str] = None
     address: Optional[str] = None
     qualification: Optional[str] = None
     DOB: Optional[datetime]  = None
