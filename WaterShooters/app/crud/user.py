@@ -22,8 +22,6 @@ def getUserByEmail( email: str,db: Session) -> Optional[User]:
 
 # Read all users with filters and ordering
 def getAllUsers(db: Session,filter: UserSchema = None,) -> List[User]:
-
-
     query = db.query(User).filter(User.del_flag == False)
 
     # Apply filters for all attributes

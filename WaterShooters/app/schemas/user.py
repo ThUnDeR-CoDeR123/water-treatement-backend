@@ -28,8 +28,8 @@ class ComplaintSuggestionSchema(BaseModel):
 
 
 class UserSchema(BaseModel):
-    user_id: Optional[int] =None
-    email: Optional[EmailStr] = None
+    user_id: Optional[int] = None
+    email: Optional[str] = None
     password: Optional[str] = None
     aadhar_no: Optional[str] = None
     first_name: Optional[str] = None
@@ -37,17 +37,18 @@ class UserSchema(BaseModel):
     phone_no: Optional[str] = None
     address: Optional[str] = None
     qualification: Optional[str] = None
-    DOB: Optional[datetime]  = None
-    created_at: Optional[datetime]  = None
-    updated_at: Optional[datetime]  = None
-    is_verified: Optional[bool]  = None
-    last_login: Optional[datetime]  = None
-    otp: Optional[str]  = None
-    is_admin: Optional[bool]  = None
-    del_flag: Optional[bool]  = None
-    role_id: Optional[int]  = None
-    page: Optional[int]  = None
-    limit: Optional[int]  = None
+    DOB: Optional[datetime] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    is_verified: Optional[bool] = None
+    last_login: Optional[datetime] = None
+    otp: Optional[str] = None
+    is_admin: Optional[bool] = None
+    del_flag: Optional[bool] = None
+    role_id: Optional[int] = None
+    page: Optional[int] = None
+    limit: Optional[int] = None
+
     class Config:
         from_attributes = True
 

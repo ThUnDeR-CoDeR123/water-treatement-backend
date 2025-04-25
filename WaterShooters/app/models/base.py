@@ -69,38 +69,43 @@ class Role(Base):
 class User(Base):
     __tablename__ = "user"
 
+    # Primary key
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
+    # Required fields
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
+    aadhar_no: Mapped[str] = mapped_column(String(12), unique=True, nullable=False)
+    phone_no: Mapped[str] = mapped_column(String(10), unique=True, nullable=False)
 
-    aadhar_no: Mapped[Optional[str]] = mapped_column(String(12), unique=True, nullable=False)
-    name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    phone_no: Mapped[Optional[str]] = mapped_column(String(10), unique=True, nullable=False)
+    # Optional fields
+    first_name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    last_name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     address: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     qualification: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     DOB: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
-    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     last_login: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     otp: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
-    del_flag: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
 
-    role_id: Mapped[int] = mapped_column(ForeignKey("role.role_id"), nullable=False)
+    # Required fields with defaults
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.now(), onupdate=func.now())
+    is_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    is_admin: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    del_flag: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
+
+    # Foreign key
+    role_id: Mapped[int] = mapped_column(Integer, ForeignKey("role.role_id"), nullable=False)
     role: Mapped["Role"] = relationship("Role", back_populates="users")
 
-    #Plants owned by the user (as a client)
+    # Relationships 
     owned_plants: Mapped[List["Plant"]] = relationship(
-        "Plant", # String reference to avoid circular imports
+        "Plant",
         foreign_keys="Plant.client_id",
         back_populates="client"
     )
-
-    # Plants operated by the user (as an operator)
     operated_plants: Mapped[List["Plant"]] = relationship(
-        "Plant",  # String reference to avoid circular imports
+        "Plant",
         foreign_keys="Plant.operator_id",
         back_populates="operator"
     )
