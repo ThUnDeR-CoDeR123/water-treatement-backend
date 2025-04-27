@@ -7,14 +7,29 @@ from fastapi import HTTPException
 
 # Create a new plant
 def createPlant(db: Session, plant: PlantSchema) -> Plant:
-    new_plant = Plant(**plant.model_dump(exclude_unset=True))
+    # Create plant with explicit field definition
+    # Required fields - no null checks needed
+    new_plant = Plant(
+        client_id=plant.client_id,
+        operator_id=plant.operator_id,
+        plant_type_id=plant.plant_type_id,
+        plant_name=plant.plant_name,
+        address=plant.address,
+        plant_capacity=plant.plant_capacity,
+        # Optional fields - apply null checks
+        hotel_name=plant.hotel_name if plant.hotel_name is not None else None,
+        plant_description=plant.plant_description if plant.plant_description is not None else None,
+        operational_status=plant.operational_status if plant.operational_status is not None else False
+    )
     db.add(new_plant)
     db.commit()
     db.refresh(new_plant)
-    #fetching pllant type chemicals, equipments and flow parameters
+    
+    #fetching plant type chemicals, equipments and flow parameters
     chemicals = db.query(PlantTypeToChemical).filter(PlantTypeToChemical.plant_type_id == new_plant.plant_type_id).all()
     equipments = db.query(PlantTypeToEquipment).filter(PlantTypeToEquipment.plant_type_id == new_plant.plant_type_id).all()
     flow_parameters = db.query(PlantTypeToFlowParameter).filter(PlantTypeToFlowParameter.plant_type_id == new_plant.plant_type_id).all()
+    
     #inserting values to plantchemicals, plantequipments and plantflowparameters
     for chemical in chemicals:
         plant_chemical = PlantChemical(plant_id=new_plant.plant_id, chemical_id=chemical.chemical_id, quantity=0)
@@ -25,6 +40,7 @@ def createPlant(db: Session, plant: PlantSchema) -> Plant:
     for flow_parameter in flow_parameters:
         plant_flow_parameter = PlantFlowParameter(plant_id=new_plant.plant_id, flow_parameter_id=flow_parameter.flow_parameter_id, target_value=0, tolerance=0)
         db.add(plant_flow_parameter)
+    
     db.commit()
     db.refresh(new_plant)
     return new_plant
@@ -76,7 +92,6 @@ def getAllPlants(
     current_user: User = None
 ) -> List[Plant]:
     query = db.query(Plant).filter(Plant.del_flag == False)
-    # return query    
     # Apply filters
     if plant:
         if plant.plant_name:
@@ -87,9 +102,11 @@ def getAllPlants(
             query = query.filter(Plant.operator_id == plant.operator_id)
         if plant.plant_type_id:
             query = query.filter(Plant.plant_type_id == plant.plant_type_id)
-
-    # Order by created_at descending and apply pagination
-    return query.order_by(desc(Plant.created_at)).offset((plant.page-1)*plant.limit).limit(plant.limit).all()
+        # Apply pagination only if plant parameter is provided
+        return query.order_by(desc(Plant.created_at)).offset((plant.page-1)*plant.limit).limit(plant.limit).all()
+    
+    # If no plant parameter, just return all ordered by created_at
+    return query.order_by(desc(Plant.created_at)).all()
 
 # Update a plant
 def updatePlant(db: Session, plant_id: int, plant: PlantSchema) -> Optional[Plant]:
