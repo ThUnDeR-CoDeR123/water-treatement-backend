@@ -92,20 +92,27 @@ def getAllPlants(
     current_user: User = None
 ) -> List[Plant]:
     query = db.query(Plant).filter(Plant.del_flag == False)
-    # Apply filters
+    
+    # Apply role-based filtering
+    if current_user:
+        if not current_user.is_admin:  # Non-admin users can only see their plants
+            if current_user.role_id == 2:  # Client role
+                query = query.filter(Plant.client_id == current_user.user_id)
+            elif current_user.role_id == 3:  # Operator role
+                query = query.filter(Plant.operator_id == current_user.user_id)
+    
+    # Apply additional filters if provided
     if plant:
-        if plant.plant_name is not None:
+        if plant.plant_name:
             query = query.filter(Plant.plant_name.ilike(f"%{plant.name}%"))
-        if plant.client_id is not None:
+        if plant.client_id:
             query = query.filter(Plant.client_id == plant.client_id)
-        if plant.operator_id is not None:
-            query = query.filter(Plant.operator_id == plant.operator_id)
-        if plant.plant_type_id is not None:
+        if plant.plant_type_id:
             query = query.filter(Plant.plant_type_id == plant.plant_type_id)
         # Apply pagination only if plant parameter is provided
         return query.order_by(desc(Plant.created_at)).offset((plant.page-1)*plant.limit).limit(plant.limit).all()
     
-    # If no plant parameter, just return all ordered by created_at
+    # If no plant parameter, just return filtered results ordered by created_at
     return query.order_by(desc(Plant.created_at)).all()
 
 # Update a plant
