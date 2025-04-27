@@ -17,7 +17,7 @@ class PlantSchema(BaseModel):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     del_flag: Optional[bool] = None
-    limit: Optional[int] = 10
+    limit: Optional[int] = 100
     page: Optional[int] = 1
 
     class Config:

@@ -94,13 +94,13 @@ def getAllPlants(
     query = db.query(Plant).filter(Plant.del_flag == False)
     # Apply filters
     if plant:
-        if plant.plant_name:
+        if plant.plant_name is not None:
             query = query.filter(Plant.plant_name.ilike(f"%{plant.name}%"))
-        if plant.client_id:
+        if plant.client_id is not None:
             query = query.filter(Plant.client_id == plant.client_id)
-        if plant.operator_id:
+        if plant.operator_id is not None:
             query = query.filter(Plant.operator_id == plant.operator_id)
-        if plant.plant_type_id:
+        if plant.plant_type_id is not None:
             query = query.filter(Plant.plant_type_id == plant.plant_type_id)
         # Apply pagination only if plant parameter is provided
         return query.order_by(desc(Plant.created_at)).offset((plant.page-1)*plant.limit).limit(plant.limit).all()
