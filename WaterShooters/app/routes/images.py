@@ -58,3 +58,11 @@ async def download_all_images():
         return response
     except Exception as e:
         return {"error": f"Failed to create zip file: {str(e)}"}, 500
+    
+
+@imageRouter.get("/list")
+async def list_images():
+    # List all files in the upload directory
+    files = os.listdir(UPLOAD_DIR)
+    images = [{"filename": file} for file in files if os.path.isfile(os.path.join(UPLOAD_DIR, file))]
+    return {"images": images}
