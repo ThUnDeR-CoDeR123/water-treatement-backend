@@ -74,12 +74,12 @@ async def create_flow_log(
                 # Create file-like object
                 image_file = io.BytesIO(image_data)
                 
-                # Create UploadFile instance
+                # Create UploadFile instance with the correct parameters
                 upload_file = UploadFile(
                     filename="inlet.jpg",
-                    file=image_file,
-                    content_type="image/jpeg"
+                    file=image_file
                 )
+                upload_file.headers = {"content-type": "image/jpeg"}
                 
                 # Upload using existing image upload function
                 result = await upload_image(upload_file)
@@ -102,12 +102,12 @@ async def create_flow_log(
                 # Create file-like object
                 image_file = io.BytesIO(image_data)
                 
-                # Create UploadFile instance
+                # Create UploadFile instance with the correct parameters
                 upload_file = UploadFile(
                     filename="outlet.jpg",
-                    file=image_file,
-                    content_type="image/jpeg"
+                    file=image_file
                 )
+                upload_file.headers = {"content-type": "image/jpeg"}
                 
                 # Upload using existing image upload function
                 result = await upload_image(upload_file)
