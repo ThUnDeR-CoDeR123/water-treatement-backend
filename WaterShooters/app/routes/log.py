@@ -14,6 +14,9 @@ from app.database import get_db
 from app.routes.jwt import get_current_user,getPriviledgeUser,getAdmin
 from app.models.base import User
 from app.routes.images import upload_image
+import base64
+import io
+
 logRouter = APIRouter(prefix="/api/v1/logs", tags=["Logs"])
 
 # Create a log entry
@@ -50,21 +53,71 @@ def create_log(
         raise HTTPException(status_code=500, detail=str(e))
 
 @logRouter.post("/create/flow")
-def create_flow_log(
+async def create_flow_log(
     log: FlowLogSchema,
     db: Session = Depends(get_db),
-    current_user: User = Depends(getPriviledgeUser),
-    inlet_image: UploadFile = File(...),
-    outlet_image: UploadFile = File(...)
+    current_user: User = Depends(getPriviledgeUser)
 ):
     try:
-        inlet_image_path= upload_image(inlet_image)["image_id"]
-        print("inlet_image_path",inlet_image_path)
-        outlet_image_path= upload_image(outlet_image)["image_id"]
-        print("outlet_image_path",outlet_image_path)
-        log.inlet_image = inlet_image_path
-        log.outlet_image = outlet_image_path
-        return crud.create_flow_log(db, log, current_user.user_id)
+        # Handle inlet image if provided
+        if log.inlet_image:
+            try:
+                # Extract base64 data (remove data:image/jpeg;base64, if present)
+                if ',' in log.inlet_image:
+                    base64_data = log.inlet_image.split(',')[1]
+                else:
+                    base64_data = log.inlet_image
+                
+                # Decode base64 to binary
+                image_data = base64.b64decode(base64_data)
+                
+                # Create file-like object
+                image_file = io.BytesIO(image_data)
+                
+                # Create UploadFile instance
+                upload_file = UploadFile(
+                    filename="inlet.jpg",
+                    file=image_file,
+                    content_type="image/jpeg"
+                )
+                
+                # Upload using existing image upload function
+                result = await upload_image(upload_file)
+                log.inlet_image = result["image_id"]
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Error processing inlet image: {str(e)}")
+
+        # Handle outlet image if provided
+        if log.outlet_image:
+            try:
+                # Extract base64 data
+                if ',' in log.outlet_image:
+                    base64_data = log.outlet_image.split(',')[1]
+                else:
+                    base64_data = log.outlet_image
+                
+                # Decode base64 to binary
+                image_data = base64.b64decode(base64_data)
+                
+                # Create file-like object
+                image_file = io.BytesIO(image_data)
+                
+                # Create UploadFile instance
+                upload_file = UploadFile(
+                    filename="outlet.jpg",
+                    file=image_file,
+                    content_type="image/jpeg"
+                )
+                
+                # Upload using existing image upload function
+                result = await upload_image(upload_file)
+                log.outlet_image = result["image_id"]
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Error processing outlet image: {str(e)}")
+
+        # Create the flow log with image references
+        result = crud.create_flow_log(db=db, log=log, user_id=current_user.user_id)
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
