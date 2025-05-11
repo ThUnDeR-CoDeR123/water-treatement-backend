@@ -64,6 +64,8 @@ class FlowLogSchema(BaseModel):
     plant_id: Optional[int] = None
     inlet_value: Optional[float] = None
     outlet_value: Optional[float] = None
+    inlet_image: Optional[str] = None
+    outlet_image: Optional[str] = None
     created_by: Optional[int] = None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None

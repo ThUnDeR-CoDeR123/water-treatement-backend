@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException,UploadFile, File
 from sqlalchemy.orm import Session
 from typing import List
 from app.crud import log as crud
@@ -13,7 +13,7 @@ from app.schemas.logs import (
 from app.database import get_db
 from app.routes.jwt import get_current_user,getPriviledgeUser,getAdmin
 from app.models.base import User
-
+from app.routes.images import upload_image
 logRouter = APIRouter(prefix="/api/v1/logs", tags=["Logs"])
 
 # Create a log entry
@@ -53,9 +53,17 @@ def create_log(
 def create_flow_log(
     log: FlowLogSchema,
     db: Session = Depends(get_db),
-    current_user: User = Depends(getPriviledgeUser)
+    current_user: User = Depends(getPriviledgeUser),
+    inlet_image: UploadFile = File(...),
+    outlet_image: UploadFile = File(...)
 ):
     try:
+        inlet_image_path= upload_image(inlet_image)["image_id"]
+        print("inlet_image_path",inlet_image_path)
+        outlet_image_path= upload_image(outlet_image)["image_id"]
+        print("outlet_image_path",outlet_image_path)
+        log.inlet_image = inlet_image_path
+        log.outlet_image = outlet_image_path
         return crud.create_flow_log(db, log, current_user.user_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

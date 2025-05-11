@@ -1,7 +1,7 @@
 import os
 import uuid
 import shutil
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse
 from typing import Optional
 from datetime import datetime
@@ -28,7 +28,7 @@ async def upload_image(file: UploadFile = File(...)):
 async def get_image(image_id: str):
     file_path = os.path.join(UPLOAD_DIR, image_id)
     if not os.path.exists(file_path):
-        return {"error": "Image not found"}, 404
+        raise HTTPException(status_code=404, detail="Image not found")
     
     return FileResponse(file_path)
 
@@ -57,8 +57,7 @@ async def download_all_images():
         
         return response
     except Exception as e:
-        return {"error": f"Failed to create zip file: {str(e)}"}, 500
-    
+        raise HTTPException(status_code=500, detail=f"Failed to create zip file: {str(e)}")
 
 @imageRouter.get("/list")
 async def list_images():

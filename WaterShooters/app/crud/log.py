@@ -245,6 +245,8 @@ def create_flow_log(db: Session, log: FlowLogSchema, user_id: int):
             daily_log_id=existing_log.log_id,
             inlet_value=log.inlet_value,
             outlet_value=log.outlet_value,
+            inlet_image=log.inlet_image,
+            outlet_image=log.outlet_image,
             shift=log.shift,
             created_by=user_id
         )
@@ -268,6 +270,8 @@ def create_flow_log(db: Session, log: FlowLogSchema, user_id: int):
             daily_log_id=new_daily_log.log_id,
             inlet_value=log.inlet_value,
             outlet_value=log.outlet_value,
+            inlet_image=log.inlet_image,
+            outlet_image=log.outlet_image,
             shift=log.shift,
             created_by=user_id
         )
@@ -302,6 +306,10 @@ def update_flow_log(db: Session, log: FlowLogSchema) -> FlowLog:
         flow_log.inlet_value = log.inlet_value
     if log.outlet_value is not None:
         flow_log.outlet_value = log.outlet_value
+    if log.inlet_image is not None:
+        flow_log.inlet_image = log.inlet_image
+    if log.outlet_image is not None:
+        flow_log.outlet_image = log.outlet_image
     if log.shift is not None:
         flow_log.shift = log.shift
         
