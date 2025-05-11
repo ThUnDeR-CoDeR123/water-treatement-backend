@@ -62,14 +62,10 @@ async def download_all_images():
 
 @imageRouter.get("/list")
 async def list_images():
-    # List all images in the upload directory
+    # List all images in the upload directory, return only filenames
     images = []
     for filename in os.listdir(UPLOAD_DIR):
         file_path = os.path.join(UPLOAD_DIR, filename)
         if os.path.isfile(file_path):
-            images.append({
-                "filename": filename,
-                "size": os.path.getsize(file_path),
-                "created_at": datetime.fromtimestamp(os.path.getctime(file_path)).isoformat()
-            })
-    return {"images": images}
+            images.append(filename)
+    return images
