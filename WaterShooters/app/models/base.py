@@ -216,14 +216,12 @@ class Plant(Base):
     # - to daily logs
     daily_logs: Mapped[List["DailyLog"]] = relationship("DailyLog",back_populates="plant",cascade="all, delete-orphan",foreign_keys="DailyLog.plant_id")
 
-
-
     #relationships
-    plant_chemicals: Mapped[List["PlantChemical"]] = relationship("PlantChemical",back_populates="plant",cascade="all, delete-orphan")
-    plant_equipments: Mapped[List["PlantEquipment"]] = relationship("PlantEquipment",back_populates="plant",cascade="all, delete-orphan")
-    plant_flow_parameters: Mapped[List["PlantFlowParameter"]] = relationship("PlantFlowParameter",back_populates="plant",cascade="all, delete-orphan")
-    client: Mapped[Optional["User"]] = relationship("User",foreign_keys=[client_id],back_populates="owned_plants",uselist=False)
-    operator: Mapped[Optional["User"]] = relationship("User",foreign_keys=[operator_id],back_populates="operated_plants",uselist=False)
+    plant_chemicals: Mapped[List["PlantChemical"]] = relationship("PlantChemical", back_populates="plant", cascade="all, delete-orphan")
+    plant_equipments: Mapped[List["PlantEquipment"]] = relationship("PlantEquipment", back_populates="plant", cascade="all, delete-orphan")
+    plant_flow_parameters: Mapped[List["PlantFlowParameter"]] = relationship("PlantFlowParameter", back_populates="plant", cascade="all, delete-orphan")
+    client: Mapped[Optional["User"]] = relationship("User", foreign_keys=[client_id], back_populates="owned_plants", uselist=False)
+    operator: Mapped[Optional["User"]] = relationship("User", foreign_keys=[operator_id], back_populates="operated_plants", uselist=False)
 
     def __repr__(self) -> str:
         return (
@@ -232,91 +230,23 @@ class Plant(Base):
         )
 
 
-# FLOW PARAMETER
-class FlowParameter(Base):
-    __tablename__ = "flowparameter"
-
-    #key attributes
-    flow_parameter_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    created_by: Mapped[int] = mapped_column(Integer,ForeignKey("user.user_id"),nullable=False)
-
-    parameter_name: Mapped[str] = mapped_column(String, unique=True)
-    parameter_unit: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
-    del_flag: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
-
-    # Relationship
-    plant_flow_parameters: Mapped[List["PlantFlowParameter"]] = relationship("PlantFlowParameter",back_populates="flow_parameter", cascade="all, delete-orphan")
-
-    def __repr__(self) -> str:
-        return f"<FlowParameter(id={self.flow_parameter_id}, name={self.parameter_name})>"
-
-
-# EQUIPMENT
-class Equipment(Base):
-    __tablename__ = "equipment"
-
-    equipment_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    created_by: Mapped[int] = mapped_column(Integer,ForeignKey("user.user_id"),nullable=False)
-
-    equipment_name: Mapped[str] = mapped_column(String, nullable=False)
-    equipment_type: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
-    del_flag: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
-
-    # Relationship: Equipment to PlantEquipment (1:N)
-    plant_equipments: Mapped[List["PlantEquipment"]] = relationship("PlantEquipment",back_populates="equipment",cascade="all, delete-orphan")
-    
-
-    def __repr__(self) -> str:
-        return (
-            f"<Equipment(equipment_id={self.equipment_id}, name={self.equipment_name}, "
-            f"type={self.equipment_type})>"
-        )
-
-
-# -----------------------------------------------
-# CHEMICAL
-# -----------------------------------------------
-class Chemical(Base):
-    __tablename__ = "chemical"
-
-    chemical_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    created_by: Mapped[int] = mapped_column(Integer,ForeignKey("user.user_id"),nullable=False)
-
-
-    chemical_name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    chemical_unit: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
-    del_flag: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
-
-    # Relationship: Chemical to PlantChemical (1:N)
-    plant_chemicals: Mapped[List["PlantChemical"]] = relationship("PlantChemical", back_populates="chemical", cascade="all, delete-orphan")
-
-    def __repr__(self) -> str:
-        return f"<Chemical(chemical_id={self.chemical_id}, name={self.chemical_name})>"
-
-
 # Table: PlantChemical
 class PlantChemical(Base):
     __tablename__ = "plantchemical"
 
     plant_chemical_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     plant_id: Mapped[int] = mapped_column(ForeignKey("plant.plant_id"), nullable=False)
-    chemical_id: Mapped[int] = mapped_column(ForeignKey("chemical.chemical_id"), nullable=False)
+    
+    # Moved from Chemical class
+    chemical_name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    chemical_unit: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    
     quantity: Mapped[Optional[float]] = mapped_column(Float, nullable=True) 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     del_flag: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
 
     # Relationships
     plant: Mapped["Plant"] = relationship("Plant", back_populates="plant_chemicals")
-    chemical: Mapped["Chemical"] = relationship("Chemical", back_populates="plant_chemicals")
     plant_chemical_logs: Mapped[List["ChemicalLog"]] = relationship("ChemicalLog", back_populates="plant_chemical", cascade="all, delete-orphan")
 
 # Table: PlantEquipment
@@ -325,15 +255,19 @@ class PlantEquipment(Base):
 
     plant_equipment_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     plant_id: Mapped[int] = mapped_column(ForeignKey("plant.plant_id"), nullable=False)
-    equipment_id: Mapped[int] = mapped_column(ForeignKey("equipment.equipment_id"), nullable=False)
+    
+    # Moved from Equipment class
+    equipment_name: Mapped[str] = mapped_column(String, nullable=False)
+    equipment_type: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    
     last_maintenance: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-    status: Mapped[int] = mapped_column(Integer, nullable=False,server_default="0")  # 0 for okay, 1 for critical, 2 for down
+    status: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")  # 0 for okay, 1 for critical, 2 for down
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
     del_flag: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    
     # Relationships
     plant: Mapped["Plant"] = relationship("Plant", back_populates="plant_equipments")
-    equipment: Mapped["Equipment"] = relationship("Equipment", back_populates="plant_equipments")
     plant_equipment_logs: Mapped[List["EquipmentLog"]] = relationship("EquipmentLog", back_populates="plant_equipment", cascade="all, delete-orphan")
 
 # Table: PlantFlowParameter
@@ -342,42 +276,20 @@ class PlantFlowParameter(Base):
 
     plant_flow_parameter_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     plant_id: Mapped[int] = mapped_column(ForeignKey("plant.plant_id"), nullable=False)
-    flow_parameter_id: Mapped[int] = mapped_column(ForeignKey("flowparameter.flow_parameter_id"), nullable=False)
-    target_value: Mapped[Optional[float]] = mapped_column(Float, nullable=True)  # Example additional field
-    tolerance: Mapped[Optional[float]] = mapped_column(Float, nullable=True)  # Example additional field
+    
+    # Moved from FlowParameter class
+    parameter_name: Mapped[str] = mapped_column(String, nullable=False)
+    parameter_unit: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    
+    target_value: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    tolerance: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+    del_flag: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
 
     # Relationships
     plant: Mapped["Plant"] = relationship("Plant", back_populates="plant_flow_parameters")
-    flow_parameter: Mapped["FlowParameter"] = relationship("FlowParameter", back_populates="plant_flow_parameters")
     flow_parameter_logs: Mapped[List["FlowParameterLog"]] = relationship("FlowParameterLog", back_populates="plant_flow_parameter", cascade="all, delete-orphan")
-    del_flag: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
-
-# Association Table: PlantType to FlowParameter
-class PlantTypeToFlowParameter(Base):
-    __tablename__ = "planttypetoflowparameter"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    plant_type_id: Mapped[int] = mapped_column(ForeignKey("planttype.plant_type_id"))
-    flow_parameter_id: Mapped[int] = mapped_column(ForeignKey("flowparameter.flow_parameter_id"))
-
-# Association Table: PlantType to Chemical
-class PlantTypeToChemical(Base):
-    __tablename__ = "planttypetochemical"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    plant_type_id: Mapped[int] = mapped_column(ForeignKey("planttype.plant_type_id"))
-    chemical_id: Mapped[int] = mapped_column(ForeignKey("chemical.chemical_id"))
-
-# Association Table: PlantType to Equipment
-class PlantTypeToEquipment(Base):
-    __tablename__ = "planttypetoequipment"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    plant_type_id: Mapped[int] = mapped_column(ForeignKey("planttype.plant_type_id"))
-    equipment_id: Mapped[int] = mapped_column(ForeignKey("equipment.equipment_id"))
-
-
-
 
 
 
@@ -455,7 +367,7 @@ class FlowParameterLog(Base):
 
     # Relationships
     daily_log: Mapped["DailyLog"] = relationship("DailyLog",back_populates="flow_parameter_logs")
-    plant_flow_parameter: Mapped["FlowParameter"] = relationship("PlantFlowParameter",back_populates="flow_parameter_logs")
+    plant_flow_parameter: Mapped["PlantFlowParameter"] = relationship("PlantFlowParameter",back_populates="flow_parameter_logs")
 
     def __repr__(self) -> str:
         return (
@@ -512,7 +424,7 @@ class EquipmentLog(Base):
 
     # Relationships
     daily_log: Mapped["DailyLog"] = relationship("DailyLog",back_populates="equipment_logs")
-    plant_equipment: Mapped["Equipment"] = relationship("PlantEquipment",back_populates="plant_equipment_logs")
+    plant_equipment: Mapped["PlantEquipment"] = relationship("PlantEquipment",back_populates="plant_equipment_logs")
 
     def __repr__(self) -> str:
         return (
