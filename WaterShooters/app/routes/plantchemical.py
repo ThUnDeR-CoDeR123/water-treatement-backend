@@ -52,7 +52,7 @@ def read_plant_chemicals(
     )
     return plant_chemicals
 
-@router.put("/{plant_chemical_id}")
+@router.put("/update")
 def update_plant_chemical(
     plant_chemical_id: int,
     plant_chemical: PlantChemicalSchema,
@@ -60,7 +60,7 @@ def update_plant_chemical(
     current_user = Depends(get_current_user)
 ):
     """Update plant chemical"""
-    db_plant_chemical = crud_plantchemical.get_plant_chemical(db, plant_chemical_id=plant_chemical_id)
+    db_plant_chemical = crud_plantchemical.get_plant_chemical(db, plant_chemical_id=plant_chemical.plant_chemical_id)
     if db_plant_chemical is None:
         raise HTTPException(status_code=404, detail="Plant chemical not found")
     return crud_plantchemical.update_plant_chemical(
