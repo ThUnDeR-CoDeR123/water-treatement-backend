@@ -2,7 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import Dict, List
 from app.database import get_db
-from app.schemas.plant import PlantChemicalSchema
+from app.schemas.plant import (
+    PlantChemicalSchema, PlantChemicalCreate, 
+    PlantChemicalUpdate, PlantChemicalInDB
+)
 from app.crud import plantchemical as crud_plantchemical
 from app.routes.jwt import get_current_user
 
@@ -11,14 +14,17 @@ router = APIRouter(
     tags=["plant-chemical"]
 )
 
-@router.post("/create", response_model=PlantChemicalSchema)
+@router.post("/create", response_model=PlantChemicalInDB)
 def create_plant_chemical(
-    plant_chemical: PlantChemicalSchema,
+    plant_chemical: PlantChemicalCreate,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     """Create new plant chemical"""
-    return crud_plantchemical.create_plant_chemical(db=db, plant_chemical=plant_chemical)
+    try:
+        return crud_plantchemical.create_plant_chemical(db=db, plant_chemical=plant_chemical)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/{plant_chemical_id}", response_model=PlantChemicalSchema)
 def read_plant_chemical(

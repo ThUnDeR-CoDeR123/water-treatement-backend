@@ -51,15 +51,29 @@ class PlantFlowParameterSchema(BaseModel):
     class Config:
         from_attributes = True
 
-class PlantChemicalSchema(BaseModel):
-    plant_chemical_id: Optional[int] = None
+class PlantChemicalBase(BaseModel):
     plant_id: Optional[int] = None
     chemical_name: Optional[str] = None
     chemical_unit: Optional[str] = None
     quantity: Optional[float] = None
-    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class PlantChemicalCreate(PlantChemicalBase):
+    plant_id: int
+    chemical_name: str
+
+class PlantChemicalUpdate(PlantChemicalBase):
+    pass
+
+class PlantChemicalInDB(PlantChemicalBase):
+    plant_chemical_id: int
+    created_at: datetime
     updated_at: Optional[datetime] = None
-    del_flag: Optional[bool] = None
+    del_flag: bool = False
+
+class PlantChemicalSchema(PlantChemicalInDB):
     limit: Optional[int] = 100
     page: Optional[int] = 1
 
