@@ -61,17 +61,17 @@ class PlantChemicalBase(BaseModel):
         from_attributes = True
 
 class PlantChemicalCreate(PlantChemicalBase):
-    plant_id: int
-    chemical_name: str
+    plant_id: Optional[int] = None
+    chemical_name: Optional[str] = None
 
 class PlantChemicalUpdate(PlantChemicalBase):
     pass
 
 class PlantChemicalInDB(PlantChemicalBase):
-    plant_chemical_id: int
-    created_at: datetime
+    plant_chemical_id: Optional[int] = None
+    created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
-    del_flag: bool = False
+    del_flag: Optional[bool] = False
 
 class PlantChemicalSchema(PlantChemicalInDB):
     limit: Optional[int] = 100
