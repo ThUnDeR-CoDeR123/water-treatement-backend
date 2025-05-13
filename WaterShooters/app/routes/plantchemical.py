@@ -50,12 +50,7 @@ def read_plant_chemicals(
     plant_chemicals = crud_plantchemical.get_plant_chemicals(
         db, plant_id=plant_id, page=page, limit=limit
     )
-    return {
-        "items": plant_chemicals,
-        "total": len(plant_chemicals),
-        "page": page,
-        "limit": limit
-    }
+    return plant_chemicals
 
 @router.put("/{plant_chemical_id}")
 def update_plant_chemical(

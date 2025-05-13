@@ -11,7 +11,7 @@ router = APIRouter(
     tags=["plant-equipment"]
 )
 
-@router.post("/create", response_model=PlantEquipmentSchema)
+@router.post("/create")
 def create_plant_equipment(
     plant_equipment: PlantEquipmentSchema,
     db: Session = Depends(get_db),
@@ -20,7 +20,7 @@ def create_plant_equipment(
     """Create new plant equipment"""
     return crud_plantequipment.create_plant_equipment(db=db, plant_equipment=plant_equipment)
 
-@router.get("/{plant_equipment_id}", response_model=PlantEquipmentSchema)
+@router.get("/{plant_equipment_id}")
 def read_plant_equipment(
     plant_equipment_id: int,
     db: Session = Depends(get_db),
@@ -32,7 +32,7 @@ def read_plant_equipment(
         raise HTTPException(status_code=404, detail="Plant equipment not found")
     return db_plant_equipment
 
-@router.get("/plant/{plant_id}", response_model=Dict[str, object])
+@router.get("/plant/{plant_id}")
 def read_plant_equipments(
     plant_id: int,
     page: int = 1,
@@ -44,14 +44,9 @@ def read_plant_equipments(
     plant_equipments = crud_plantequipment.get_plant_equipments(
         db, plant_id=plant_id, page=page, limit=limit
     )
-    return {
-        "items": plant_equipments,
-        "total": len(plant_equipments),
-        "page": page,
-        "limit": limit
-    }
+    return plant_equipments
 
-@router.put("/{plant_equipment_id}", response_model=PlantEquipmentSchema)
+@router.put("/{plant_equipment_id}")
 def update_plant_equipment(
     plant_equipment_id: int,
     plant_equipment: PlantEquipmentSchema,

@@ -20,7 +20,7 @@ def create_plant_flow_parameter(
     """Create new plant flow parameter"""
     return crud_plantflowparameter.create_plant_flow_parameter(db=db, plant_flow_parameter=plant_flow_parameter)
 
-@router.get("/{plant_flow_parameter_id}", response_model=PlantFlowParameterSchema)
+@router.get("/{plant_flow_parameter_id}")
 def read_plant_flow_parameter(
     plant_flow_parameter_id: int,
     db: Session = Depends(get_db),
@@ -34,7 +34,7 @@ def read_plant_flow_parameter(
         raise HTTPException(status_code=404, detail="Plant flow parameter not found")
     return db_plant_flow_parameter
 
-@router.get("/plant/{plant_id}", response_model=Dict[str, object])
+@router.get("/plant/{plant_id}")
 def read_plant_flow_parameters(
     plant_id: int,
     page: int = 1,
@@ -46,14 +46,9 @@ def read_plant_flow_parameters(
     plant_flow_parameters = crud_plantflowparameter.get_plant_flow_parameters(
         db, plant_id=plant_id, page=page, limit=limit
     )
-    return {
-        "items": plant_flow_parameters,
-        "total": len(plant_flow_parameters),
-        "page": page,
-        "limit": limit
-    }
+    return plant_flow_parameters
 
-@router.put("/{plant_flow_parameter_id}", response_model=PlantFlowParameterSchema)
+@router.put("/{plant_flow_parameter_id}")
 def update_plant_flow_parameter(
     plant_flow_parameter_id: int,
     plant_flow_parameter: PlantFlowParameterSchema,
@@ -72,7 +67,7 @@ def update_plant_flow_parameter(
         plant_flow_parameter=plant_flow_parameter
     )
 
-@router.delete("/{plant_flow_parameter_id}", response_model=Dict[str, str])
+@router.delete("/{plant_flow_parameter_id}")
 def delete_plant_flow_parameter(
     plant_flow_parameter_id: int,
     db: Session = Depends(get_db),
