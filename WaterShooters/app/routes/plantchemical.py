@@ -54,7 +54,6 @@ def read_plant_chemicals(
 
 @router.put("/update")
 def update_plant_chemical(
-    plant_chemical_id: int,
     plant_chemical: PlantChemicalSchema,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
