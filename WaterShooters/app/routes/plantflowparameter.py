@@ -48,14 +48,16 @@ def read_plant_flow_parameters(
     )
     return plant_flow_parameters
 
-@router.put("/{plant_flow_parameter_id}")
+@router.put("/update")
 def update_plant_flow_parameter(
-    plant_flow_parameter_id: int,
     plant_flow_parameter: PlantFlowParameterSchema,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     """Update plant flow parameter"""
+    plant_flow_parameter_id = plant_flow_parameter.plant_flow_parameter_id
+    if plant_flow_parameter_id is None:
+        raise HTTPException(status_code=400, detail="plant_flow_parameter_id is required")
     db_plant_flow_parameter = crud_plantflowparameter.get_plant_flow_parameter(
         db, plant_flow_parameter_id=plant_flow_parameter_id
     )
