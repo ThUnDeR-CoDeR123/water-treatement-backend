@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from typing import List, Optional
-from app.models.base import Plant, User, PlantType, PlantTypeToChemical, PlantTypeToEquipment, PlantTypeToFlowParameter, PlantChemical, PlantEquipment, PlantFlowParameter
+from app.models.base import Plant, User, PlantType,PlantChemical, PlantEquipment, PlantFlowParameter
 from app.schemas.plant import PlantSchema
 from fastapi import HTTPException
 
@@ -25,24 +25,24 @@ def createPlant(db: Session, plant: PlantSchema) -> Plant:
     db.commit()
     db.refresh(new_plant)
     
-    #fetching plant type chemicals, equipments and flow parameters
-    chemicals = db.query(PlantTypeToChemical).filter(PlantTypeToChemical.plant_type_id == new_plant.plant_type_id).all()
-    equipments = db.query(PlantTypeToEquipment).filter(PlantTypeToEquipment.plant_type_id == new_plant.plant_type_id).all()
-    flow_parameters = db.query(PlantTypeToFlowParameter).filter(PlantTypeToFlowParameter.plant_type_id == new_plant.plant_type_id).all()
+    # #fetching plant type chemicals, equipments and flow parameters
+    # chemicals = db.query(PlantTypeToChemical).filter(PlantTypeToChemical.plant_type_id == new_plant.plant_type_id).all()
+    # equipments = db.query(PlantTypeToEquipment).filter(PlantTypeToEquipment.plant_type_id == new_plant.plant_type_id).all()
+    # flow_parameters = db.query(PlantTypeToFlowParameter).filter(PlantTypeToFlowParameter.plant_type_id == new_plant.plant_type_id).all()
     
-    #inserting values to plantchemicals, plantequipments and plantflowparameters
-    for chemical in chemicals:
-        plant_chemical = PlantChemical(plant_id=new_plant.plant_id, chemical_id=chemical.chemical_id, quantity=0)
-        db.add(plant_chemical)
-    for equipment in equipments:
-        plant_equipment = PlantEquipment(plant_id=new_plant.plant_id, equipment_id=equipment.equipment_id)
-        db.add(plant_equipment)
-    for flow_parameter in flow_parameters:
-        plant_flow_parameter = PlantFlowParameter(plant_id=new_plant.plant_id, flow_parameter_id=flow_parameter.flow_parameter_id, target_value=0, tolerance=0)
-        db.add(plant_flow_parameter)
+    # #inserting values to plantchemicals, plantequipments and plantflowparameters
+    # for chemical in chemicals:
+    #     plant_chemical = PlantChemical(plant_id=new_plant.plant_id, chemical_id=chemical.chemical_id, quantity=0)
+    #     db.add(plant_chemical)
+    # for equipment in equipments:
+    #     plant_equipment = PlantEquipment(plant_id=new_plant.plant_id, equipment_id=equipment.equipment_id)
+    #     db.add(plant_equipment)
+    # for flow_parameter in flow_parameters:
+    #     plant_flow_parameter = PlantFlowParameter(plant_id=new_plant.plant_id, flow_parameter_id=flow_parameter.flow_parameter_id, target_value=0, tolerance=0)
+    #     db.add(plant_flow_parameter)
     
-    db.commit()
-    db.refresh(new_plant)
+    # db.commit()
+    # db.refresh(new_plant)
     return new_plant
 
 # Read a single plant by ID
