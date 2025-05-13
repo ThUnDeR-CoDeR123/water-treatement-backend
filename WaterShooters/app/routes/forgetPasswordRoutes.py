@@ -1,125 +1,86 @@
-# from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
-# from sqlalchemy.orm import Session
-# from app.schemas.logs import   User,Token,DeleteUser,OTP,passwordReset,forgetEmail,TokenData
-# from app.database import get_db
-# from app.crud.user import getUserByEmail,get_password_hash,updatePassword,setForgetToken, checkForgetToken
-# from typing import Annotated,List
-# from app.routes.utils import send_mail,generateToken,getTokenDataFromAuthService
-# from app.config import settings
-# import httpx
-# from http import HTTPStatus
-# from starlette.responses import JSONResponse
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from pydantic import BaseModel
+from app.database import get_db
+from app.crud.user import getUserByEmail, send_mail
+import random
+from typing import Optional
 
-# forgetRouter= APIRouter(prefix="/api/v1/user")
+class ForgetPasswordRequest(BaseModel):
+    email: str
 
+class ResetPasswordRequest(BaseModel):
+    email: str
+    otp: str
+    new_password: str
 
+forgetRouter = APIRouter(prefix="/auth", tags=["Authentication"])
 
-# @forgetRouter.post("/forget-password" )
-# async def forget_password(req: forgetEmail, background_tasks: BackgroundTasks, db: Annotated[Session, Depends(get_db)]):
-
-#     user = getUserByEmail(req.email,db)
-
-#     try:
-#         response = await generateToken(id=user.id, username=req.email, flag="FORGET")
-#         if response.status_code != 200:
-#             return JSONResponse(
-#                 status_code=response.status_code,
-#                 content={"message": "An unexpected error occurred. Please try again!"}
-#             )
-#     except httpx.RequestError as exc:
-#         return JSONResponse(
-#             status_code=500,
-#             content={"error": f"An error occurred while requesting {exc.request.url}: {str(exc)}",
-#                      "message": "Could not send email"}
-#         )
-#     except Exception as e:
-#         return JSONResponse(
-#             status_code=500,
-#             content={"error": f"An unexpected error occurred: {str(e)}",
-#                      "message": "An unexpected error occurred. Please try again!"}
-#         )
+@forgetRouter.post("/forget-password")
+async def forget_password(request: ForgetPasswordRequest, db: Session = Depends(get_db)):
+    """Send OTP to user's email for password reset"""
+    user = getUserByEmail(request.email, db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User with this email does not exist"
+        )
     
+    # Generate 6-digit OTP
+    otp = ''.join(random.choices('0123456789', k=6))
+    
+    # Save OTP to user model
+    user.otp = otp
+    db.commit()
+    
+    # Send OTP via email
+    html_content = f"""
+        <h2>Password Reset Request</h2>
+        <p>Your OTP for password reset is: <strong>{otp}</strong></p>
+        <p>This OTP will expire in 10 minutes.</p>
+        <p>If you did not request this password reset, please ignore this email.</p>
+    """
+    
+    await send_mail(
+        email=request.email,
+        subject="Password Reset OTP",
+        htmlbody=html_content
+    )
+    
+    return {"message": "OTP has been sent to your email", "otp": otp}
 
-
-#     try :
-
-#         setForgetToken(req.email,db,response.json().get('access_token'))
-#         await send_mail(
-#                 req.email,
-#                 subject="Here is your Forget password link!",
-#                 htmlbody=f"<p>if this is not triggered by you then Ignore the email </p><br> click the button to reset your password : <a href='#?token=%22{response.json().get('access_token')}%22'>Click Here!</a>"
-#             )
-#         return JSONResponse(
-#                 status_code=200, 
-#                 content={
-#                     "message": "Email sent successfully!",
-#                     "link": f"#/confirmpass?token=%22{response.json().get('access_token')}%22",
-#                     "token": f"{response.json().get('access_token')}"
-#                 }
-#             )
-#     except Exception as e:
-#         return JSONResponse(status_code=502, content={
-#             "message": "Could not send email ",
-#             "details": f"{str(e)}",
-#             "link": f"#?token=%22{response.json().get('access_token')}%22",
-#             "token": f"{response.json().get('access_token')}"
-#             })
-                
-
-
-# @forgetRouter.post("/reset-password")
-# async def reset_password(data: passwordReset, db: Annotated[Session, Depends(get_db)]):
-#     try:
-
-#         token_data = await getTokenDataFromAuthService(data.token)
-
-#         l=checkForgetToken(token_data.id,db, data.token)
-#         print(l)
-#         if l[0]!=l[1] :
-#             return JSONResponse(
-#                 status_code=403,
-#                 content={"message": "Supplied token is invalid."}
-#             )
-
-        
-
-#         # Check if the flag indicates that this token is meant for password reset
-#         if token_data.flag != "FORGET":
-#             return JSONResponse(
-#                 status_code=403,
-#                 content={"error": "Supplied token is not for password reset.",
-#                          "message": "Supplied token is invalid."}
-#             )
-#         new_hash = get_password_hash(data.new_password)
-
-#         updatePassword(token_data.id, new_hashed_password=new_hash, db=db)
-
-#         return JSONResponse(
-#             status_code=200,
-#             content={"message": "Password reset successful"}
-#         )
-
-#     except httpx.RequestError as e:
-#         # Catching any network-related errors
-#         return JSONResponse(
-#             status_code=500,
-#             content={"error": f"Request to auth service failed: {str(e)}",
-#                      "message": "Something went wrong. Please try again!"}
-#         )
-
-#     except httpx.HTTPStatusError as e:
-#         # Handling non-200 responses from the auth service
-#         return JSONResponse(
-#             status_code=e.response.status_code,
-#             content={"error": "Failed to verify token with the auth service.",
-#                      "message": "Verification Failed. Please try again!"}
-#         )
-
-#     except Exception as e:
-#         # Generic fallback for all unforeseen exceptions
-#         return JSONResponse(
-#             status_code=500,
-#             content={"error": f"An unexpected error occurred: {str(e)}",
-#                      "message": "Something went wrong. Please try again!"}
-#         )
+@forgetRouter.post("/reset-password")
+async def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+    """Reset password using OTP"""
+    user = getUserByEmail(request.email, db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User with this email does not exist"
+        )
+    
+    if not user.otp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No OTP was generated for this user"
+        )
+    
+    if user.otp != request.otp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid OTP"
+        )
+      # Update password and clear OTP
+    from app.crud.user import hash_password
+    user.password = hash_password(request.new_password)
+    user.otp = None
+    db.commit()
+    
+    await send_mail(
+        email=request.email,
+        subject="Password Reset Successful",
+        htmlbody="<h2>Password Reset Successful</h2><p>Your password has been successfully reset.</p>"
+    )
+    
+    return {"message": "Password has been reset successfully"}
 

@@ -38,9 +38,15 @@ class PlantTypeSchema(BaseModel):
 class PlantFlowParameterSchema(BaseModel):
     plant_flow_parameter_id: Optional[int] = None
     plant_id: Optional[int] = None
-    flow_parameter_id: Optional[int] = None
+    parameter_name: Optional[str] = None
+    parameter_unit: Optional[str] = None
     target_value: Optional[float] = None
     tolerance: Optional[float] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    del_flag: Optional[bool] = None
+    limit: Optional[int] = 100
+    page: Optional[int] = 1
 
     class Config:
         from_attributes = True
@@ -48,10 +54,14 @@ class PlantFlowParameterSchema(BaseModel):
 class PlantChemicalSchema(BaseModel):
     plant_chemical_id: Optional[int] = None
     plant_id: Optional[int] = None
-    chemical_id: Optional[int] = None
+    chemical_name: Optional[str] = None
+    chemical_unit: Optional[str] = None
     quantity: Optional[float] = None
     created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     del_flag: Optional[bool] = None
+    limit: Optional[int] = 100
+    page: Optional[int] = 1
 
     class Config:
         from_attributes = True
@@ -60,12 +70,15 @@ class PlantChemicalSchema(BaseModel):
 class PlantEquipmentSchema(BaseModel):
     plant_equipment_id: Optional[int] = None
     plant_id: Optional[int] = None
-    equipment_id: Optional[int] = None
+    equipment_name: Optional[str] = None
+    equipment_type: Optional[str] = None
     last_maintenance: Optional[datetime] = None
-    status: Optional[bool] = None
+    status: Optional[int] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     del_flag: Optional[bool] = None
+    limit: Optional[int] = 100
+    page: Optional[int] = 1
 
     class Config:
         from_attributes = True

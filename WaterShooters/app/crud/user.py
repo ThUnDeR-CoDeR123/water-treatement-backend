@@ -5,6 +5,55 @@ from app.models.base import User
 from app.schemas.user import UserSchema
 from fastapi import Depends, HTTPException
 from app.database import get_db
+from app.config import settings
+import httpx
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str) -> str:
+    """Hash a password using bcrypt"""
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a password against its hash"""
+    return pwd_context.verify(plain_password, hashed_password)
+
+async def send_mail(email: str,subject: str,htmlbody: str, from_email : str = None):
+
+    #mail configuration
+    payload = {
+        "sender": {
+                "name": settings.mail_from_name,
+                "email": settings.mail_from
+            },
+        "to": [
+                {
+                    "email": email,
+                }
+            ],
+        "subject": subject,
+        "htmlContent": htmlbody
+    }
+
+    if from_email:
+        payload["to"][0]["email"] = from_email
+
+    headers = {
+    "accept": "application/json",
+    "api-key": settings.brevo_api_key,
+    "content-type": "application/json"
+    }
+
+    # Make the POST request
+    with httpx.Client() as client:
+        response = client.post(settings.smtp_api_url, json=payload, headers=headers)
+
+    # Print the response
+    # print("response status code for the mail api : ",response.status_code)
+    # print("response json for the mail api : ",response.json())
+
+    return response
 
 # Create a new user
 def createUser(db: Session, user: UserSchema) -> User:
