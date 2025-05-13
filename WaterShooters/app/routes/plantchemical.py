@@ -14,7 +14,7 @@ router = APIRouter(
     tags=["plant-chemical"]
 )
 
-@router.post("/create", response_model=PlantChemicalInDB)
+@router.post("/create")
 def create_plant_chemical(
     plant_chemical: PlantChemicalCreate,
     db: Session = Depends(get_db),
@@ -26,7 +26,7 @@ def create_plant_chemical(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/{plant_chemical_id}", response_model=PlantChemicalSchema)
+@router.get("/{plant_chemical_id}")
 def read_plant_chemical(
     plant_chemical_id: int,
     db: Session = Depends(get_db),
@@ -38,7 +38,7 @@ def read_plant_chemical(
         raise HTTPException(status_code=404, detail="Plant chemical not found")
     return db_plant_chemical
 
-@router.get("/plant/{plant_id}", response_model=Dict[str, object])
+@router.get("/plant/{plant_id}")
 def read_plant_chemicals(
     plant_id: int,
     page: int = 1,
@@ -57,7 +57,7 @@ def read_plant_chemicals(
         "limit": limit
     }
 
-@router.put("/{plant_chemical_id}", response_model=PlantChemicalSchema)
+@router.put("/{plant_chemical_id}")
 def update_plant_chemical(
     plant_chemical_id: int,
     plant_chemical: PlantChemicalSchema,
