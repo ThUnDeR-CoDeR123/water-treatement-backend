@@ -58,6 +58,7 @@ def update_plant_chemical(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
+    plant_chemical_id = plant_chemical.plant_chemical_id
     """Update plant chemical"""
     db_plant_chemical = crud_plantchemical.get_plant_chemical(db, plant_chemical_id=plant_chemical.plant_chemical_id)
     if db_plant_chemical is None:
