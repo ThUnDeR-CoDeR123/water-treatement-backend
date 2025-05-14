@@ -204,7 +204,7 @@ def getEquipmentLogs(db: Session, log: EquipmentLogSchema, user_id: int) -> List
     equipmentlogs = query.all()
 
     if not equipmentlogs:
-        raise HTTPException(status_code=404, detail="Logs not found")
+        return []
     return equipmentlogs
 
 def getChemicalLogs(db: Session, log: ChemicalLogSchema, user_id: int) -> List[ChemicalLogSchema]:
@@ -218,7 +218,7 @@ def getChemicalLogs(db: Session, log: ChemicalLogSchema, user_id: int) -> List[C
     chemicallogs = query.all()
 
     if not chemicallogs:
-        raise HTTPException(status_code=404, detail="Logs not found")
+        return []
     return chemicallogs
 
 def getFowParameterLogs(db: Session, log: FlowParameterLogSchema, user_id: int) -> List[FlowParameterLogSchema]:
@@ -232,7 +232,7 @@ def getFowParameterLogs(db: Session, log: FlowParameterLogSchema, user_id: int) 
     flowparameterlogs = query.all()
 
     if not flowparameterlogs:
-        raise HTTPException(status_code=404, detail="Logs not found")
+        return []
     return flowparameterlogs
 
 def create_flow_log(db: Session, log: FlowLogSchema, user_id: int):
@@ -300,7 +300,7 @@ def get_flow_logs(db: Session, log: FlowLogSchema) -> List[FlowLog]:
         query = query.filter(FlowLog.shift == log.shift)
     flow_logs = query.all()
     if not flow_logs:
-        raise HTTPException(status_code=404, detail="Flow logs not found")
+        return []
     return flow_logs
 
 def update_flow_log(db: Session, log: FlowLogSchema) -> FlowLog:
