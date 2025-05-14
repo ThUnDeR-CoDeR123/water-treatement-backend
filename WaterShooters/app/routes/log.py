@@ -85,7 +85,7 @@ async def create_flow_log(
                 
                 # Upload using existing image upload function
                 result = await upload_image(upload_file)
-                log.inlet_image = result["image_id"]
+                log.inlet_image = "https://api.watershooters.in/images/"+result["image_id"]
             except Exception as e:
                 raise HTTPException(status_code=400, detail=f"Error processing inlet image: {str(e)}")
 
@@ -113,7 +113,7 @@ async def create_flow_log(
                 
                 # Upload using existing image upload function
                 result = await upload_image(upload_file)
-                log.outlet_image = result["image_id"]
+                log.outlet_image = "https://api.watershooters.in/images/"+result["image_id"]
             except Exception as e:
                 raise HTTPException(status_code=400, detail=f"Error processing outlet image: {str(e)}")
 
