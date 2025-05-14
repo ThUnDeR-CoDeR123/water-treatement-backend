@@ -289,6 +289,13 @@ def create_flow_log(db: Session, log: FlowLogSchema, user_id: int):
         return new_log
 
 def get_flow_logs(db: Session, log: FlowLogSchema) -> List[FlowLog]:
+    print("Debug - Input parameters:", {
+        "plant_id": log.plant_id,
+        "start_date": log.start_date,
+        "end_date": log.end_date,
+        "shift": log.shift
+    })
+    
     query = db.query(FlowLog).filter(FlowLog.del_flag == False)
     if log.plant_id is not None:
         query = query.filter(FlowLog.plant_id == log.plant_id)
@@ -298,10 +305,15 @@ def get_flow_logs(db: Session, log: FlowLogSchema) -> List[FlowLog]:
         query = query.filter(FlowLog.created_at <= log.end_date)
     if log.shift is not None:
         query = query.filter(FlowLog.shift == log.shift)
+        
+    # Print the SQL query being generated
+    print("Debug - SQL Query:", str(query))
+    
     flow_logs = query.all()
+    print("Debug - Number of results:", len(flow_logs))
+    if flow_logs:
+        print("Debug - First result:", flow_logs[0].__dict__)
 
-    # if not flow_logs:
-    #     return []
     return flow_logs
 
 def update_flow_log(db: Session, log: FlowLogSchema) -> FlowLog:
