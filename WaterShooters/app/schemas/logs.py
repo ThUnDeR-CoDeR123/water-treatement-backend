@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+from typing import List, Dict, Union, Optional
 
 class DailyLogSchema(BaseModel):
     log_id: Optional[int]
@@ -76,4 +77,22 @@ class FlowLogSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+class GraphDataRequest(BaseModel):
+    start_date: datetime
+    end_date: datetime
+    plant_id: int
+    log_type: str  # 'flow', 'chemical', 'flowparameter', 'equipment'
+
+class GraphDataPoint(BaseModel):
+    timestamp: datetime
+    value: Union[float, int, str]
+    parameter_name: Optional[str] = None
+
+class GraphDataResponse(BaseModel):
+    series_name: str
+    data: List[GraphDataPoint]
+
+class GraphDataSeriesResponse(BaseModel):
+    series: List[GraphDataResponse]
 

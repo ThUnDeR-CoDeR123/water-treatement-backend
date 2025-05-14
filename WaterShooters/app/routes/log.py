@@ -8,7 +8,9 @@ from app.schemas.logs import (
     EquipmentLogSchema, 
     ChemicalLogSchema, 
     DailyLogSchema,
-    FlowLogSchema
+    FlowLogSchema,
+    GraphDataRequest,
+    GraphDataSeriesResponse
 )
 from app.database import get_db
 from app.routes.jwt import get_current_user,getPriviledgeUser,getAdmin
@@ -255,5 +257,18 @@ def delete_flow_log(
     try:
         crud.delete_flow_log(db, log)
         return {"message": "Flow log deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@logRouter.post("/graph-data", response_model=GraphDataSeriesResponse)
+def get_graph_data(
+    request: GraphDataRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get time series data for graphs"""
+    try:
+        series = crud.get_graph_data(db, request)
+        return GraphDataSeriesResponse(series=series)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
