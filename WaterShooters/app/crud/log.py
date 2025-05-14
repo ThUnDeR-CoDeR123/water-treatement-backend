@@ -299,8 +299,9 @@ def get_flow_logs(db: Session, log: FlowLogSchema) -> List[FlowLog]:
     if log.shift is not None:
         query = query.filter(FlowLog.shift == log.shift)
     flow_logs = query.all()
-    if not flow_logs:
-        return []
+
+    # if not flow_logs:
+    #     return []
     return flow_logs
 
 def update_flow_log(db: Session, log: FlowLogSchema) -> FlowLog:
