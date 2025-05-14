@@ -45,7 +45,7 @@ def createEquipmentLog(db: Session, log: EquipmentLogSchema, user_id: int):
                                plant_equipment_id=log.plant_equipment_id,
                                equipment_status=log.equipment_status,
                                maintenance_done=log.maintenance_done,
-                               daily_log_id=new_daily_log.log_id, 
+                               daily_log_id=existing_log.log_id, 
                                created_by=user_id)
         print("after inserting new equipment log")
         plant_equipment.status = log.equipment_status
