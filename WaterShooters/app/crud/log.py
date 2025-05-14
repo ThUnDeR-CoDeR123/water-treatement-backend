@@ -244,9 +244,11 @@ def create_flow_log(db: Session, log: FlowLogSchema, user_id: int):
         query = query.filter(DailyLog.created_by == user_id)
     if log.shift is not None:
         query = query.filter(DailyLog.shift == log.shift)
+    else:
+        log.shift = 0
     query = query.filter(func.date(DailyLog.created_at) == func.date(func.now()))  # Compare only date, not time
     existing_log = query.first()
-
+    
     if existing_log:
         # If a daily log exists, create a new flow log entry
         new_log = FlowLog(

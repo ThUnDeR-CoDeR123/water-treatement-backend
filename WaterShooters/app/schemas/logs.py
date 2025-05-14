@@ -70,7 +70,7 @@ class FlowLogSchema(BaseModel):
     created_by: Optional[int] = None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
-    shift: Optional[int] = 0  #0 for morning, 1 for evening, 2 for night
+    shift: Optional[int] = None  #0 for morning, 1 for evening, 2 for night
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     del_flag: Optional[bool] = None
