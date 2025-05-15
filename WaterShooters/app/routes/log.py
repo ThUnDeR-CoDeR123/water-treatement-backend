@@ -272,3 +272,77 @@ def get_graph_data(
         return GraphDataSeriesResponse(series=series)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@logRouter.post("/graph-data/flow", response_model=GraphDataSeriesResponse)
+def get_flow_graph_data(
+    request: GraphDataRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get flow data (inlet/outlet values) for graphs"""
+    try:
+        request.log_type = "flow"  # Override log type to ensure flow data
+        series = crud.get_graph_data(db, request)
+        return GraphDataSeriesResponse(series=series)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@logRouter.post("/graph-data/equipment", response_model=GraphDataSeriesResponse)
+def get_equipment_graph_data(
+    request: GraphDataRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get equipment status data for graphs"""
+    try:
+        request.log_type = "equipment"  # Override log type to ensure equipment data
+        series = crud.get_graph_data(db, request)
+        return GraphDataSeriesResponse(series=series)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@logRouter.post("/graph-data/chemical/used", response_model=GraphDataSeriesResponse)
+def get_chemical_usage_graph_data(
+    request: GraphDataRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get chemical quantity used data for graphs"""
+    try:
+        request.log_type = "chemical"  # Override log type to ensure chemical data
+        series = crud.get_graph_data(db, request)
+        # Filter only the "Used" series
+        filtered_series = [s for s in series if "(Used)" in s.series_name]
+        return GraphDataSeriesResponse(series=filtered_series)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@logRouter.post("/graph-data/chemical/remaining", response_model=GraphDataSeriesResponse)
+def get_chemical_remaining_graph_data(
+    request: GraphDataRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get chemical quantity remaining data for graphs"""
+    try:
+        request.log_type = "chemical"  # Override log type to ensure chemical data
+        series = crud.get_graph_data(db, request)
+        # Filter only the "Quantity Left" series
+        filtered_series = [s for s in series if "(Quantity Left)" in s.series_name]
+        return GraphDataSeriesResponse(series=filtered_series)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@logRouter.post("/graph-data/parameters", response_model=GraphDataSeriesResponse)
+def get_flow_parameters_graph_data(
+    request: GraphDataRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get flow parameters data for graphs"""
+    try:
+        request.log_type = "flowparameter"  # Override log type to ensure flow parameter data
+        series = crud.get_graph_data(db, request)
+        return GraphDataSeriesResponse(series=series)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
