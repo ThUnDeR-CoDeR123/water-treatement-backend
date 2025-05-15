@@ -445,9 +445,9 @@ def get_graph_data(db: Session, request: GraphDataRequest) -> List[GraphDataResp
                    .order_by(FlowParameterLog.created_at)
                    .all())
             
-            for log in logs:
+            for log in logs:                
                 data_points.append(GraphDataPoint(
-                    timestamp=log.created_at,
+                    timestamp=log.created_at.date(),
                     value=log.value,
                     parameter_name=param_name
                 ))
@@ -484,9 +484,9 @@ def get_graph_data(db: Session, request: GraphDataRequest) -> List[GraphDataResp
                 #         parameter_name=f"{chem_name} (Quantity Left)"
                 #     ))
                 # Add quantity used data point
-                if log.quantity_used is not None:
+                if log.quantity_used is not None:                    
                     data_points.append(GraphDataPoint(
-                        timestamp=log.created_at,
+                        timestamp=log.created_at.date(),
                         value=log.quantity_used,
                         parameter_name=f"{chem_name} (Used)"
                     ))
@@ -515,9 +515,9 @@ def get_graph_data(db: Session, request: GraphDataRequest) -> List[GraphDataResp
             
             for log in logs:
                 # Add quantity left data point
-                if log.quantity_left is not None:
+                if log.quantity_left is not None:                    
                     data_points.append(GraphDataPoint(
-                        timestamp=log.created_at,
+                        timestamp=log.created_at.date(),
                         value=log.quantity_left,
                         parameter_name=f"{chem_name} (Quantity Left)"
                     ))
@@ -552,9 +552,9 @@ def get_graph_data(db: Session, request: GraphDataRequest) -> List[GraphDataResp
                    .order_by(EquipmentLog.created_at)
                    .all())
             
-            for log in logs:
+            for log in logs:                
                 data_points.append(GraphDataPoint(
-                    timestamp=log.created_at,
+                    timestamp=log.created_at.date(),
                     value=log.equipment_status,
                     parameter_name=equip_name
                 ))
@@ -578,9 +578,9 @@ def get_graph_data(db: Session, request: GraphDataRequest) -> List[GraphDataResp
                .all())
         
         for log in logs:
-            if log.inlet_value is not None:
+            if log.inlet_value is not None:                
                 inlet_points.append(GraphDataPoint(
-                    timestamp=log.created_at,
+                    timestamp=log.created_at.date(),
                     value=log.inlet_value,
                     parameter_name="Inlet Value"
                 ))
