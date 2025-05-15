@@ -440,7 +440,7 @@ def get_graph_data(db: Session, request: GraphDataRequest) -> List[GraphDataResp
             logs = (db.query(FlowParameterLog)
                    .filter(FlowParameterLog.plant_id == request.plant_id,
                           FlowParameterLog.plant_flow_parameter_id == param.plant_flow_parameter_id,
-                          FlowParameterLog.created_at.between(request.start_date, request.end_date),
+                          func.date(FlowParameterLog.created_at).between(request.start_date, request.end_date),
                           FlowParameterLog.del_flag == False)
                    .order_by(FlowParameterLog.created_at)
                    .all())
@@ -470,7 +470,7 @@ def get_graph_data(db: Session, request: GraphDataRequest) -> List[GraphDataResp
             logs = (db.query(ChemicalLog)
                    .filter(ChemicalLog.plant_id == request.plant_id,
                           ChemicalLog.plant_chemical_id == chem.plant_chemical_id,
-                          ChemicalLog.created_at.between(request.start_date, request.end_date),
+                          func.date(ChemicalLog.created_at).between(request.start_date, request.end_date),
                           ChemicalLog.del_flag == False)
                    .order_by(ChemicalLog.created_at)
                    .all())
@@ -508,7 +508,7 @@ def get_graph_data(db: Session, request: GraphDataRequest) -> List[GraphDataResp
             logs = (db.query(ChemicalLog)
                    .filter(ChemicalLog.plant_id == request.plant_id,
                           ChemicalLog.plant_chemical_id == chem.plant_chemical_id,
-                          ChemicalLog.created_at.between(request.start_date, request.end_date),
+                          func.date(ChemicalLog.created_at).between(request.start_date, request.end_date),
                           ChemicalLog.del_flag == False)
                    .order_by(ChemicalLog.created_at)
                    .all())
@@ -584,9 +584,9 @@ def get_graph_data(db: Session, request: GraphDataRequest) -> List[GraphDataResp
                     value=log.inlet_value,
                     parameter_name="Inlet Value"
                 ))
-            if log.outlet_value is not None:
+            if log.outlet_value is not None:                
                 outlet_points.append(GraphDataPoint(
-                    timestamp=log.created_at,
+                    timestamp=log.created_at.date(),
                     value=log.outlet_value,
                     parameter_name="Outlet Value"
                 ))
