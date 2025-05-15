@@ -124,7 +124,7 @@ async def create_flow_log(
         raise HTTPException(status_code=500, detail=str(e))
 
 # Fetch logs for a specific entity
-@logRouter.post("/equipment", response_model=List[EquipmentLogSchema])
+@logRouter.post("/equipment")
 def get_equipment_logs(
     log: EquipmentLogSchema,
     db: Session = Depends(get_db),
@@ -135,7 +135,7 @@ def get_equipment_logs(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@logRouter.post("/flowparameter", response_model=List[FlowParameterLogSchema])
+@logRouter.post("/flowparameter")
 def get_flow_parameter_logs(
     log: FlowParameterLogSchema,
     db: Session = Depends(get_db),
@@ -146,7 +146,7 @@ def get_flow_parameter_logs(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@logRouter.post("/chemical", response_model=List[ChemicalLogSchema])
+@logRouter.post("/chemical")
 def get_chemical_logs(
     log: ChemicalLogSchema,
     db: Session = Depends(get_db),
