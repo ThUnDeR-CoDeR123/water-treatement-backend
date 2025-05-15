@@ -388,7 +388,7 @@ class ChemicalLog(Base):
 
     shift: Mapped[int] = mapped_column(Integer, nullable=False)#0 for morning, 1 for evening, 2 for night
     quantity_left: Mapped[float] = mapped_column(Float, nullable=False)
-    quantity_consumed: Mapped[float] = mapped_column(Float, nullable=False)
+    quantity_used: Mapped[float] = mapped_column(Float, nullable=False)
     sludge_discharge: Mapped[bool] = mapped_column(Boolean, default=False)
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
