@@ -483,12 +483,12 @@ def get_graph_data(db: Session, request: GraphDataRequest) -> List[GraphDataResp
                         value=log.quantity_left,
                         parameter_name=f"{chem_name} (Quantity Left)"
                     ))
-                # Add quantity consumed data point
-                if log.quantity_consumed is not None:
+                # Add quantity used data point
+                if log.quantity_used is not None:
                     data_points.append(GraphDataPoint(
                         timestamp=log.created_at,
-                        value=log.quantity_consumed,
-                        parameter_name=f"{chem_name} (Consumed)"
+                        value=log.quantity_used,
+                        parameter_name=f"{chem_name} (Used)"
                     ))
             
             if data_points:
