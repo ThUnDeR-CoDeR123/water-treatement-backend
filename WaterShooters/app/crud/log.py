@@ -547,7 +547,7 @@ def get_graph_data(db: Session, request: GraphDataRequest) -> List[GraphDataResp
             logs = (db.query(EquipmentLog)
                    .filter(EquipmentLog.plant_id == request.plant_id,
                           EquipmentLog.plant_equipment_id == equip.plant_equipment_id,
-                          EquipmentLog.created_at.between(request.start_date, request.end_date),
+                          func.date(EquipmentLog.created_at).between(request.start_date, request.end_date),
                           EquipmentLog.del_flag == False)
                    .order_by(EquipmentLog.created_at)
                    .all())
@@ -571,8 +571,7 @@ def get_graph_data(db: Session, request: GraphDataRequest) -> List[GraphDataResp
         outlet_points = []
         
         logs = (db.query(FlowLog)
-               .filter(FlowLog.plant_id == request.plant_id,
-                      FlowLog.created_at.between(request.start_date, request.end_date),
+               .filter(FlowLog.plant_id == request.plant_id,                      func.date(FlowLog.created_at).between(request.start_date, request.end_date),
                       FlowLog.del_flag == False)
                .order_by(FlowLog.created_at)
                .all())
