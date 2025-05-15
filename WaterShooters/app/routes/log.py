@@ -312,7 +312,7 @@ def get_chemical_usage_graph_data(
 ):
     """Get chemical quantity used data for graphs"""
     try:
-        request.log_type = "chemical"  # Override log type to ensure chemical data
+        request.log_type = "chemical-used"  # Override log type to ensure chemical data
         series = crud.get_graph_data(db, request)
         # Filter only the "Used" series
         print(series)
@@ -329,7 +329,7 @@ def get_chemical_remaining_graph_data(
 ):
     """Get chemical quantity remaining data for graphs"""
     try:
-        request.log_type = "chemical"  # Override log type to ensure chemical data
+        request.log_type = "chemical-left"  # Override log type to ensure chemical data
         series = crud.get_graph_data(db, request)
         # Filter only the "Quantity Left" series
         print(series)

@@ -458,7 +458,45 @@ def get_graph_data(db: Session, request: GraphDataRequest) -> List[GraphDataResp
                     data=data_points
                 ))
 
-    elif request.log_type == "chemical":
+    elif request.log_type == "chemical-used":
+        chemicals = (db.query(PlantChemical)
+                   .filter(PlantChemical.plant_id == request.plant_id,
+                          PlantChemical.del_flag == False)
+                   .all())
+        
+        for chem in chemicals:
+            chem_name = chem.chemical_name
+            data_points = []
+            logs = (db.query(ChemicalLog)
+                   .filter(ChemicalLog.plant_id == request.plant_id,
+                          ChemicalLog.plant_chemical_id == chem.plant_chemical_id,
+                          ChemicalLog.created_at.between(request.start_date, request.end_date),
+                          ChemicalLog.del_flag == False)
+                   .order_by(ChemicalLog.created_at)
+                   .all())
+            
+            for log in logs:
+                # Add quantity left data point
+                # if log.quantity_left is not None:
+                #     data_points.append(GraphDataPoint(
+                #         timestamp=log.created_at,
+                #         value=log.quantity_left,
+                #         parameter_name=f"{chem_name} (Quantity Left)"
+                #     ))
+                # Add quantity used data point
+                if log.quantity_used is not None:
+                    data_points.append(GraphDataPoint(
+                        timestamp=log.created_at,
+                        value=log.quantity_used,
+                        parameter_name=f"{chem_name} (Used)"
+                    ))
+            
+            if data_points:
+                series.append(GraphDataResponse(
+                    series_name=f"Chemical: {chem_name}",
+                    data=data_points
+                ))
+    elif request.log_type == "chemical-left":
         chemicals = (db.query(PlantChemical)
                    .filter(PlantChemical.plant_id == request.plant_id,
                           PlantChemical.del_flag == False)
@@ -484,12 +522,12 @@ def get_graph_data(db: Session, request: GraphDataRequest) -> List[GraphDataResp
                         parameter_name=f"{chem_name} (Quantity Left)"
                     ))
                 # Add quantity used data point
-                if log.quantity_used is not None:
-                    data_points.append(GraphDataPoint(
-                        timestamp=log.created_at,
-                        value=log.quantity_used,
-                        parameter_name=f"{chem_name} (Used)"
-                    ))
+                # if log.quantity_used is not None:
+                #     data_points.append(GraphDataPoint(
+                #         timestamp=log.created_at,
+                #         value=log.quantity_used,
+                #         parameter_name=f"{chem_name} (Used)"
+                #     ))
             
             if data_points:
                 series.append(GraphDataResponse(
