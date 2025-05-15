@@ -269,6 +269,7 @@ def get_graph_data(
     """Get time series data for graphs"""
     try:
         series = crud.get_graph_data(db, request)
+        print(series)
         return GraphDataSeriesResponse(series=series)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -283,6 +284,7 @@ def get_flow_graph_data(
     try:
         request.log_type = "flow"  # Override log type to ensure flow data
         series = crud.get_graph_data(db, request)
+        print(series)
         return GraphDataSeriesResponse(series=series)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -297,6 +299,7 @@ def get_equipment_graph_data(
     try:
         request.log_type = "equipment"  # Override log type to ensure equipment data
         series = crud.get_graph_data(db, request)
+        print(series)
         return GraphDataSeriesResponse(series=series)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -312,6 +315,7 @@ def get_chemical_usage_graph_data(
         request.log_type = "chemical"  # Override log type to ensure chemical data
         series = crud.get_graph_data(db, request)
         # Filter only the "Used" series
+        print(series)
         filtered_series = [s for s in series if "(Used)" in s.series_name]
         return GraphDataSeriesResponse(series=filtered_series)
     except Exception as e:
@@ -328,6 +332,7 @@ def get_chemical_remaining_graph_data(
         request.log_type = "chemical"  # Override log type to ensure chemical data
         series = crud.get_graph_data(db, request)
         # Filter only the "Quantity Left" series
+        print(series)
         filtered_series = [s for s in series if "(Quantity Left)" in s.series_name]
         return GraphDataSeriesResponse(series=filtered_series)
     except Exception as e:
@@ -343,6 +348,7 @@ def get_flow_parameters_graph_data(
     try:
         request.log_type = "flowparameter"  # Override log type to ensure flow parameter data
         series = crud.get_graph_data(db, request)
+        print(series)
         return GraphDataSeriesResponse(series=series)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
