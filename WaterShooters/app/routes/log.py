@@ -316,8 +316,8 @@ def get_chemical_usage_graph_data(
         series = crud.get_graph_data(db, request)
         # Filter only the "Used" series
         print(series)
-        filtered_series = [s for s in series if "(Used)" in s.series_name]
-        return GraphDataSeriesResponse(series=filtered_series)
+        # filtered_series = [s for s in series if "(Used)" in s.series_name]
+        return GraphDataSeriesResponse(series=series)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -333,8 +333,8 @@ def get_chemical_remaining_graph_data(
         series = crud.get_graph_data(db, request)
         # Filter only the "Quantity Left" series
         print(series)
-        filtered_series = [s for s in series if "(Quantity Left)" in s.series_name]
-        return GraphDataSeriesResponse(series=filtered_series)
+        # filtered_series = [s for s in series if "(Quantity Left)" in s.series_name]
+        return GraphDataSeriesResponse(series=series)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
