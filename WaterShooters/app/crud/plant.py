@@ -64,12 +64,13 @@ def getPlantsByPlantTypeId(db: Session, plant_type_id: int, user: User) -> Optio
         print("Admin user fetching all plants")
         plants = db.query(Plant).filter(Plant.plant_type_id == plant_type_id, Plant.del_flag == False).all()
     if user.role_id==2 :#and user.owned_plants:
-        print("Client user fetching owned plants")
+        print(f"Client user fetching owned plants plant type id : {plant_type_id} and user id : {user.user_id}")
         plants = db.query(Plant).filter(
                     Plant.plant_type_id == plant_type_id,
                     Plant.del_flag == False,
                     Plant.client_id == user.user_id,
                 ).all()
+        print(f"Plants fetched for client user : {len(plants)}")
     if user.role_id==3 :#and user.operated_plants:
         print("Operator user fetching operated plants")
         plants = db.query(Plant).filter(
