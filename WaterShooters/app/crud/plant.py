@@ -59,6 +59,7 @@ def getPlantById(db: Session, plant_id: int) -> Optional[Plant]:
     return plant
 def getPlantsByPlantTypeId(db: Session, plant_type_id: int, user: User) -> Optional[Plant]:
     """This function retrieves plants based on the plant type ID and the user's role."""
+    plants = []
     if user.is_admin:
         plants = db.query(Plant).filter(Plant.plant_type_id == plant_type_id, Plant.del_flag == False).all()
     if user.role_id==2 and user.owned_plants:
