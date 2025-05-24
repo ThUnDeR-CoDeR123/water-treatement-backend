@@ -61,14 +61,17 @@ def getPlantsByPlantTypeId(db: Session, plant_type_id: int, user: User) -> Optio
     """This function retrieves plants based on the plant type ID and the user's role."""
     plants = []
     if user.is_admin:
+        print("Admin user fetching all plants")
         plants = db.query(Plant).filter(Plant.plant_type_id == plant_type_id, Plant.del_flag == False).all()
     if user.role_id==2 and user.owned_plants:
+        print("Client user fetching owned plants")
         plants = db.query(Plant).filter(
                     Plant.plant_type_id == plant_type_id,
                     Plant.del_flag == False,
                     Plant.client_id == user.user_id,
                 ).all()
     if user.role_id==3 and user.operated_plants:
+        print("Operator user fetching operated plants")
         plants = db.query(Plant).filter(
                     Plant.plant_type_id == plant_type_id,
                     Plant.del_flag == False,
