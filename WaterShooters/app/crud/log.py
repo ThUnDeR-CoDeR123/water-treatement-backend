@@ -160,7 +160,7 @@ def createChemicalLog(db: Session, log: ChemicalLogSchema, user_id: int):
             plant_id= log.plant_id,
             shift=log.shift,
             quantity_left=log.quantity_left,
-            quantity_consumed=log.quantity_used,
+            quantity_used=log.quantity_used,
             sludge_discharge=log.sludge_discharge,
             daily_log_id=existing_log.log_id, 
             created_by=user_id)
@@ -181,7 +181,7 @@ def createChemicalLog(db: Session, log: ChemicalLogSchema, user_id: int):
             plant_id= log.plant_id,
             shift=log.shift,
             quantity_left=log.quantity_left,
-            quantity_consumed=log.quantity_used,
+            quantity_used=log.quantity_used,
             sludge_discharge=log.sludge_discharge,
             daily_log_id=new_daily_log.log_id, 
             created_by=user_id)
