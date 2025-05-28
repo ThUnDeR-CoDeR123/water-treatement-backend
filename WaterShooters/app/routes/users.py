@@ -114,6 +114,7 @@ async def create_user(user: UserSchema ,db: Annotated[Session, Depends(get_db)])
             return JSONResponse(status_code=200, content={"token": jwt})  
     except Exception as e:
         db.rollback()
+        print(f"Error creating user: {str(e)}")
         raise HTTPException(status_code=503, detail=f"{str(e)}")
 
 
