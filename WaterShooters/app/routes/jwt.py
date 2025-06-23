@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.schemas.utils import TokenData
 from app.database import get_db
 from app.models.base import User
-from app.crud.user import getUserByEmail, getUserById
+from app.crud.user import getUserByEmail, getUserById,getUserByPhone
 from datetime import timedelta,datetime,timezone
 from typing import Annotated, Union
 from passlib.context import CryptContext
@@ -149,7 +149,12 @@ def verify_token(request: Request) -> TokenData | None:
 def authenticate_user(username: str, password: str, db: Session):
     
     #THSI FUNCTION RETURNS A USER DATABASE MODEL or FALSE
-    user=getUserByEmail(username,db)
+    user = None
+    if username.isnumeric() and len(username)==10:
+        user = getUserByPhone(username,db)
+    else:
+        user=getUserByEmail(username,db)
+
 
     if not user:
         return False
