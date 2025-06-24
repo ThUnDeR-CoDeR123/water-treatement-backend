@@ -157,11 +157,14 @@ def createChemicalLog(db: Session, log: ChemicalLogSchema, user_id: int):
 
     if existing_log:
         # If a daily log exists, create a new chemical log entry
+        if log.incomming_quantity:
+            plant_chemical.quantity+=log.incomming_quantity
+        plant_chemical.quantity-=log.quantity_used
         new_log = ChemicalLog(
             plant_chemical_id =plant_chemical.plant_chemical_id, 
             plant_id= log.plant_id,
             shift=log.shift,
-            quantity_left=log.quantity_left,
+            quantity_left=plant_chemical.quantity,
             quantity_used=log.quantity_used,
             sludge_discharge=log.sludge_discharge,
             daily_log_id=existing_log.log_id, 
@@ -176,18 +179,20 @@ def createChemicalLog(db: Session, log: ChemicalLogSchema, user_id: int):
         new_daily_log = DailyLog(plant_id=plant_chemical.plant_id, shift=log.shift, created_by=user_id)
         db.add(new_daily_log)
         db.commit()
-
+        if log.incomming_quantity:
+            plant_chemical.quantity+=log.incomming_quantity
+        plant_chemical.quantity-=log.quantity_used
         # Creating a new chemical log entry
         new_log = ChemicalLog(
             plant_chemical_id =plant_chemical.plant_chemical_id, 
             plant_id= log.plant_id,
             shift=log.shift,
-            quantity_left=log.quantity_left,
+            quantity_left=plant_chemical.quantity,
             quantity_used=log.quantity_used,
             sludge_discharge=log.sludge_discharge,
             daily_log_id=new_daily_log.log_id, 
             created_by=user_id)
-        plant_chemical.quantity= log.quantity_left
+        
 
         db.add(new_log)
         db.commit()
@@ -356,13 +361,17 @@ def delete_flow_log(db: Session, log: FlowLogSchema) -> bool:
 
 def updateChemicalLogs(db: Session, log: ChemicalLogSchema, user_id: int) -> List[ChemicalLogSchema]:
     chemical_log = db.query(ChemicalLog).filter(ChemicalLog.del_flag == False, ChemicalLog.chemical_log_id==log.chemical_log_id).first()
+    plant_chemical = db.query(PlantChemical).filter(PlantChemical.plant_chemical_id==chemical_log.plant_chemical_id).first()
     if not chemical_log:
         raise HTTPException(status_code=404, detail="Logs not found")
-
+    if log.incomming_quantity:
+            plant_chemical.quantity+=log.incomming_quantity
+    plant_chemical.quantity-=log.quantity_used
+    plant_chemical.quantity+=chemical_log.quantity_used
     if log.quantity_used is not None:
         chemical_log.quantity_used = log.quantity_used
     if log.quantity_left is not None:
-        chemical_log.quantity_left = log.quantity_left
+        chemical_log.quantity_left = plant_chemical.quantity
     if log.sludge_discharge is not None:
         chemical_log.sludge_discharge = log.sludge_discharge
     if log.shift is not None:
