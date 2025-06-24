@@ -18,6 +18,9 @@ from app.models.base import User
 from app.routes.images import upload_image
 import base64
 import io
+from fastapi.responses import StreamingResponse
+from datetime import date
+from app.crud.report import generate_plant_report_pdf
 
 logRouter = APIRouter(prefix="/api/v1/logs", tags=["Logs"])
 
@@ -352,3 +355,10 @@ def get_flow_parameters_graph_data(
         return GraphDataSeriesResponse(series=series)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+@logRouter.get("/report/pdf")
+def download_pdf_report(plant_id: int, start_date: date, end_date: date, db: Session = Depends(get_db)):
+    pdf_data = generate_plant_report_pdf(db, plant_id, start_date, end_date)
+    return StreamingResponse(io.BytesIO(pdf_data), media_type="application/pdf", headers={"Content-Disposition": "attachment; filename=plant_report.pdf"})
+
