@@ -55,6 +55,7 @@ def get_all_plants(
     plant: Optional[PlantSchema] = None
 ):
     # Ensure correct arguments are passed to getAllPlants
+    print("called")
     return getAllPlants(
         db=db,
         plant=plant,
