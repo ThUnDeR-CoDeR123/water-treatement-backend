@@ -218,11 +218,13 @@ def updatePlant(db: Session, plant_id: int, plant: PlantSchema):
     db.commit()
     db.refresh(existing_plant)
     client_ids, operator_ids = get_client_operator_ids(db, plant_id)
-    return PlantSchema(
+    return_value = PlantSchema(
         **existing_plant.__dict__,
         client_id=client_ids,
         operator_id=operator_ids
     )
+    print(return_value)
+    return return_value
 
 # Soft delete a plant
 def deletePlant(db: Session, plant_id: int) -> bool:
