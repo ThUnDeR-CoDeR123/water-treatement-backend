@@ -57,13 +57,13 @@ def createPlant(db: Session, plant: PlantSchema):
     db.refresh(new_plant)
     client_ids, operator_ids = get_client_operator_ids(db, new_plant.plant_id)
     return PlantSchema(
-                new_plant_id=new_plant.new_plant_id,
-                new_plant_type_id=new_plant.new_plant_type_id,
-                new_plant_name=new_plant.new_plant_name,
+                plant_id=new_plant.plant_id,
+                plant_type_id=new_plant.plant_type_id,
+                plant_name=new_plant.plant_name,
                 address=new_plant.address,
-                new_plant_capacity=new_plant.new_plant_capacity,
+                plant_capacity=new_plant.plant_capacity,
                 hotel_name=new_plant.hotel_name,
-                new_plant_description=new_plant.new_plant_description,
+                plant_description=new_plant.plant_description,
                 operational_status=new_plant.operational_status,
                 created_at=new_plant.created_at,
                 updated_at=new_plant.updated_at,
