@@ -156,12 +156,22 @@ def getAllPlants(
         if plant.plant_name:
             query = query.filter(Plant.plant_name.ilike(f"%{plant.plant_name}%"))
         if plant.client_id:
-            client_plant_ids = db.query(ClientPlant.plant_id).filter(ClientPlant.client_id == plant.client_id).subquery()
+            client_ids = plant.client_id if isinstance(plant.client_id, list) else [plant.client_id]
+            client_plant_ids = db.query(ClientPlant.plant_id).filter(ClientPlant.client_id.in_(client_ids)).subquery()
             query = query.filter(Plant.plant_id.in_(client_plant_ids))
         if plant.plant_type_id:
             query = query.filter(Plant.plant_type_id == plant.plant_type_id)
         # Apply pagination only if plant parameter is provided
-        return query.order_by(desc(Plant.created_at)).offset((plant.page-1)*plant.limit).limit(plant.limit).all()
+        plants = query.order_by(desc(Plant.created_at)).offset((plant.page-1)*plant.limit).limit(plant.limit).all()
+        result = []
+        for plant_obj in plants:
+            client_ids, operator_ids = get_client_operator_ids(db, plant_obj.plant_id)
+            result.append(PlantSchema(
+                **plant_obj.__dict__,
+                client_id=client_ids,
+                operator_id=operator_ids
+            ))
+        return result
 
     # If no plant parameter, just return filtered results ordered by created_at
     plants = query.order_by(desc(Plant.created_at)).all()
