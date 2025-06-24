@@ -113,6 +113,21 @@ class User(Base):
     complaints: Mapped[List["ComplaintSuggestion"]] = relationship("ComplaintSuggestion", back_populates="user", foreign_keys="ComplaintSuggestion.user_id")
 
 
+
+class ClientPlant(Base):
+    __tablename__ = "clientplant"
+    client_plant_id: Mapped[int] = mapped_column(Integer,primary_key=True)
+    client_id: Mapped[int] = mapped_column(Integer,ForeignKey("user.user_id"),nullable=False)
+    plant_id: Mapped[int] = mapped_column(ForeignKey("plant.plant_id"), nullable=False)
+
+
+class OperatorPlant(Base):
+    __tablename__ = "operatorplant"
+    operator_plant_id: Mapped[int] = mapped_column(Integer,primary_key=True)
+    operator_id: Mapped[int] = mapped_column(Integer,ForeignKey("user.user_id"),nullable=False)
+    plant_id: Mapped[int] = mapped_column(ForeignKey("plant.plant_id"), nullable=False)
+
+
 # -----------------------------------------------
 # COMPLAINT / SUGGESTION
 # -----------------------------------------------

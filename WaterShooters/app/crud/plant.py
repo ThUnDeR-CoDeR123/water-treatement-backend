@@ -1,22 +1,34 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from typing import List, Optional
-from app.models.base import Plant, User, PlantType,PlantChemical, PlantEquipment, PlantFlowParameter
+from app.models.base import Plant, User, PlantType,PlantChemical, PlantEquipment, PlantFlowParameter,ClientPlant,OperatorPlant
 from app.schemas.plant import PlantSchema
 from fastapi import HTTPException
 
 # Create a new plant
 def createPlant(db: Session, plant: PlantSchema) -> Plant:
-    # Create plant with explicit field definition
-    # Required fields - no null checks needed
+    # Ensure client_id and operator_id are lists
+    client_ids = plant.client_id if isinstance(plant.client_id, list) else [plant.client_id] if plant.client_id is not None else []
+    operator_ids = plant.operator_id if isinstance(plant.operator_id, list) else [plant.operator_id] if plant.operator_id is not None else []
+
+    # Check if all client users exist and have role 2
+    for cid in client_ids:
+        user = db.query(User).filter(User.user_id == cid, User.role_id == 2).first()
+        if not user:
+            raise HTTPException(status_code=400, detail=f"Client user with id {cid} and role 2 not found")
+
+    # Check if all operator users exist and have role 3
+    for oid in operator_ids:
+        user = db.query(User).filter(User.user_id == oid, User.role_id == 3).first()
+        if not user:
+            raise HTTPException(status_code=400, detail=f"Operator user with id {oid} and role 3 not found")
+
+    # Create the plant
     new_plant = Plant(
-        client_id=plant.client_id,
-        operator_id=plant.operator_id,
         plant_type_id=plant.plant_type_id,
         plant_name=plant.plant_name,
         address=plant.address,
         plant_capacity=plant.plant_capacity,
-        # Optional fields - apply null checks
         hotel_name=plant.hotel_name if plant.hotel_name is not None else None,
         plant_description=plant.plant_description if plant.plant_description is not None else None,
         operational_status=plant.operational_status if plant.operational_status is not None else False
@@ -24,26 +36,22 @@ def createPlant(db: Session, plant: PlantSchema) -> Plant:
     db.add(new_plant)
     db.commit()
     db.refresh(new_plant)
-    
-    # #fetching plant type chemicals, equipments and flow parameters
-    # chemicals = db.query(PlantTypeToChemical).filter(PlantTypeToChemical.plant_type_id == new_plant.plant_type_id).all()
-    # equipments = db.query(PlantTypeToEquipment).filter(PlantTypeToEquipment.plant_type_id == new_plant.plant_type_id).all()
-    # flow_parameters = db.query(PlantTypeToFlowParameter).filter(PlantTypeToFlowParameter.plant_type_id == new_plant.plant_type_id).all()
-    
-    # #inserting values to plantchemicals, plantequipments and plantflowparameters
-    # for chemical in chemicals:
-    #     plant_chemical = PlantChemical(plant_id=new_plant.plant_id, chemical_id=chemical.chemical_id, quantity=0)
-    #     db.add(plant_chemical)
-    # for equipment in equipments:
-    #     plant_equipment = PlantEquipment(plant_id=new_plant.plant_id, equipment_id=equipment.equipment_id)
-    #     db.add(plant_equipment)
-    # for flow_parameter in flow_parameters:
-    #     plant_flow_parameter = PlantFlowParameter(plant_id=new_plant.plant_id, flow_parameter_id=flow_parameter.flow_parameter_id, target_value=0, tolerance=0)
-    #     db.add(plant_flow_parameter)
-    
-    # db.commit()
-    # db.refresh(new_plant)
+
+    # Create ClientPlant associations
+    for cid in client_ids:
+        client_plant = ClientPlant(client_id=cid, plant_id=new_plant.plant_id)
+        db.add(client_plant)
+
+    # Create OperatorPlant associations
+    for oid in operator_ids:
+        operator_plant = OperatorPlant(operator_id=oid, plant_id=new_plant.plant_id)
+        db.add(operator_plant)
+
+    db.commit()
+    db.refresh(new_plant)
     return new_plant
+
+
 
 # Read a single plant by ID
 def getPlantById(db: Session, plant_id: int) -> Optional[Plant]:
@@ -57,77 +65,121 @@ def getPlantById(db: Session, plant_id: int) -> Optional[Plant]:
     if plant.plant_flow_parameters:
         plant.plant_flow_parameters = plant.plant_flow_parameters.split(",")
     return plant
-def getPlantsByPlantTypeId(db: Session, plant_type_id: int, user: User) -> Optional[Plant]:
-    """This function retrieves plants based on the plant type ID and the user's role."""
+
+
+def getPlantsByPlantTypeId(db: Session, plant_type_id: int, user: User) -> Optional[List[Plant]]:
+    """This function retrieves plants based on the plant type ID and the user's role, supporting n-to-n client/operator relations."""
     plants = []
     if user.is_admin:
         print("Admin user fetching all plants")
-        plants = db.query(Plant).filter(Plant.plant_type_id == plant_type_id, Plant.del_flag == False).all()
-    if user.role_id==2 :#and user.owned_plants:
+        plants = db.query(Plant).filter(
+            Plant.plant_type_id == plant_type_id,
+            Plant.del_flag == False
+        ).all()
+    elif user.role_id == 2:  # Client
         print(f"Client user fetching owned plants plant type id : {plant_type_id} and user id : {user.user_id}")
+        # Get all plant_ids for this client from ClientPlant
+        client_plant_ids = db.query(ClientPlant.plant_id).filter(ClientPlant.client_id == user.user_id).subquery()
         plants = db.query(Plant).filter(
-                    Plant.plant_type_id == plant_type_id,
-                    Plant.del_flag == False,
-                    Plant.client_id == user.user_id,
-                ).all()
+            Plant.plant_type_id == plant_type_id,
+            Plant.del_flag == False,
+            Plant.plant_id.in_(client_plant_ids)
+        ).all()
         print(f"Plants fetched for client user : {len(plants)}")
-    if user.role_id==3 :#and user.operated_plants:
+    elif user.role_id == 3:  # Operator
         print("Operator user fetching operated plants")
+        # Get all plant_ids for this operator from OperatorPlant
+        operator_plant_ids = db.query(OperatorPlant.plant_id).filter(OperatorPlant.operator_id == user.user_id).subquery()
         plants = db.query(Plant).filter(
-                    Plant.plant_type_id == plant_type_id,
-                    Plant.del_flag == False,
-                    Plant.operator_id == user.user_id,
-                ).all()
-        
+            Plant.plant_type_id == plant_type_id,
+            Plant.del_flag == False,
+            Plant.plant_id.in_(operator_plant_ids)
+        ).all()
+
     if not plants:
         raise HTTPException(status_code=404, detail="Plants not found")
     for plant in plants:
         if plant.plant_chemicals:
             plant.plant_chemicals = plant.plant_chemicals.split(",")
         if plant.plant_equipments:
-            plant.plant_equiments = plant.plant_equiments.split(",")
+            plant.plant_equipments = plant.plant_equipments.split(",")
         if plant.plant_flow_parameters:
             plant.plant_flow_parameters = plant.plant_flow_parameters.split(",")
     return plants
 
+
 # Read all plants with optional filters
 def getAllPlants(
     db: Session,
-    plant:PlantSchema = None,
+    plant: PlantSchema = None,
     current_user: User = None
 ) -> List[Plant]:
     query = db.query(Plant).filter(Plant.del_flag == False)
-    
-    # Apply role-based filtering
+
+    # Apply role-based filtering for n-to-n relations
     if current_user:
         if not current_user.is_admin:  # Non-admin users can only see their plants
             if current_user.role_id == 2:  # Client role
-                query = query.filter(Plant.client_id == current_user.user_id)
+                client_plant_ids = db.query(ClientPlant.plant_id).filter(ClientPlant.client_id == current_user.user_id).subquery()
+                query = query.filter(Plant.plant_id.in_(client_plant_ids))
             elif current_user.role_id == 3:  # Operator role
-                query = query.filter(Plant.operator_id == current_user.user_id)
-    
+                operator_plant_ids = db.query(OperatorPlant.plant_id).filter(OperatorPlant.operator_id == current_user.user_id).subquery()
+                query = query.filter(Plant.plant_id.in_(operator_plant_ids))
+
     # Apply additional filters if provided
     if plant:
         if plant.plant_name:
-            query = query.filter(Plant.plant_name.ilike(f"%{plant.name}%"))
+            query = query.filter(Plant.plant_name.ilike(f"%{plant.plant_name}%"))
         if plant.client_id:
-            query = query.filter(Plant.client_id == plant.client_id)
+            client_plant_ids = db.query(ClientPlant.plant_id).filter(ClientPlant.client_id == plant.client_id).subquery()
+            query = query.filter(Plant.plant_id.in_(client_plant_ids))
         if plant.plant_type_id:
             query = query.filter(Plant.plant_type_id == plant.plant_type_id)
         # Apply pagination only if plant parameter is provided
         return query.order_by(desc(Plant.created_at)).offset((plant.page-1)*plant.limit).limit(plant.limit).all()
-    
+
     # If no plant parameter, just return filtered results ordered by created_at
     return query.order_by(desc(Plant.created_at)).all()
-
 # Update a plant
 def updatePlant(db: Session, plant_id: int, plant: PlantSchema) -> Optional[Plant]:
     existing_plant = db.query(Plant).filter(Plant.plant_id == plant_id, Plant.del_flag == False).first()
     if not existing_plant:
         raise HTTPException(status_code=404, detail="Plant not found")
 
-    for key, value in plant.model_dump(exclude_unset=True).items():
+    update_data = plant.model_dump(exclude_unset=True)
+
+    # Remove client_id and operator_id from update_data to handle them separately
+    client_ids = update_data.pop("client_id", None)
+    operator_ids = update_data.pop("operator_id", None)
+    update_data.pop("plant_id", None)
+    update_data.pop("created_at", None)
+    update_data.pop("updated_at", None)
+    update_data.pop("del_flag", None)
+    update_data.pop("limit", None)
+    update_data.pop("page", None)
+    # Update plant fields
+    for key, value in update_data.items():
         setattr(existing_plant, key, value)
+
+    # Update ClientPlant associations if client_ids provided
+    if client_ids is not None:
+        # Ensure it's a list
+        client_ids = client_ids if isinstance(client_ids, list) else [client_ids]
+        # Delete old associations
+        db.query(ClientPlant).filter(ClientPlant.plant_id == plant_id).delete()
+        # Add new associations
+        for cid in client_ids:
+            db.add(ClientPlant(client_id=cid, plant_id=plant_id))
+
+    # Update OperatorPlant associations if operator_ids provided
+    if operator_ids is not None:
+        # Ensure it's a list
+        operator_ids = operator_ids if isinstance(operator_ids, list) else [operator_ids]
+        # Delete old associations
+        db.query(OperatorPlant).filter(OperatorPlant.plant_id == plant_id).delete()
+        # Add new associations
+        for oid in operator_ids:
+            db.add(OperatorPlant(operator_id=oid, plant_id=plant_id))
 
     db.commit()
     db.refresh(existing_plant)

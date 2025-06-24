@@ -1,12 +1,12 @@
 # schemas/role.py
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional,List
 from datetime import datetime
 
 class PlantSchema(BaseModel):
     plant_id: Optional[int] = None
-    client_id: Optional[int] = None
-    operator_id: Optional[int] = None
+    client_id: List[Optional[int]] = None
+    operator_id: List[Optional[int]] = None
     plant_type_id: Optional[int] = None
     plant_name: Optional[str] = None
     address: Optional[str] = None
