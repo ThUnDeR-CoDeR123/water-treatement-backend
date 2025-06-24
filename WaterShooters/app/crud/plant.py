@@ -5,8 +5,14 @@ from app.models.base import Plant, User, PlantType,PlantChemical, PlantEquipment
 from app.schemas.plant import PlantSchema
 from fastapi import HTTPException
 
+
+
+def get_client_operator_ids(db: Session, plant_id: int):
+    client_ids = [cp.client_id for cp in db.query(ClientPlant).filter(ClientPlant.plant_id == plant_id).all()]
+    operator_ids = [op.operator_id for op in db.query(OperatorPlant).filter(OperatorPlant.plant_id == plant_id).all()]
+    return client_ids, operator_ids
 # Create a new plant
-def createPlant(db: Session, plant: PlantSchema) -> Plant:
+def createPlant(db: Session, plant: PlantSchema):
     # Ensure client_id and operator_id are lists
     client_ids = plant.client_id if isinstance(plant.client_id, list) else [plant.client_id] if plant.client_id is not None else []
     operator_ids = plant.operator_id if isinstance(plant.operator_id, list) else [plant.operator_id] if plant.operator_id is not None else []
@@ -49,12 +55,17 @@ def createPlant(db: Session, plant: PlantSchema) -> Plant:
 
     db.commit()
     db.refresh(new_plant)
-    return new_plant
+    client_ids, operator_ids = get_client_operator_ids(db, new_plant.plant_id)
+    return PlantSchema(
+        **new_plant.__dict__,
+        client_id=client_ids,
+        operator_id=operator_ids
+    )
 
 
 
 # Read a single plant by ID
-def getPlantById(db: Session, plant_id: int) -> Optional[Plant]:
+def getPlantById(db: Session, plant_id: int):
     plant = db.query(Plant).filter(Plant.plant_id == plant_id, Plant.del_flag == False).first()
     if not plant:
         raise HTTPException(status_code=404, detail="Plant not found")
@@ -64,10 +75,16 @@ def getPlantById(db: Session, plant_id: int) -> Optional[Plant]:
         plant.plant_equiments = plant.plant_equiments.split(",")
     if plant.plant_flow_parameters:
         plant.plant_flow_parameters = plant.plant_flow_parameters.split(",")
-    return plant
+    client_ids, operator_ids = get_client_operator_ids(db, plant.plant_id)
+
+    return PlantSchema(
+        **plant.__dict__,
+        client_id=client_ids,
+        operator_id=operator_ids
+    )
 
 
-def getPlantsByPlantTypeId(db: Session, plant_type_id: int, user: User) -> Optional[List[Plant]]:
+def getPlantsByPlantTypeId(db: Session, plant_type_id: int, user: User):
     """This function retrieves plants based on the plant type ID and the user's role, supporting n-to-n client/operator relations."""
     plants = []
     if user.is_admin:
@@ -105,7 +122,15 @@ def getPlantsByPlantTypeId(db: Session, plant_type_id: int, user: User) -> Optio
             plant.plant_equipments = plant.plant_equipments.split(",")
         if plant.plant_flow_parameters:
             plant.plant_flow_parameters = plant.plant_flow_parameters.split(",")
-    return plants
+    result = []
+    for plant in plants:
+        client_ids, operator_ids = get_client_operator_ids(db, plant.plant_id)
+        result.append(PlantSchema(
+            **plant.__dict__,
+            client_id=client_ids,
+            operator_id=operator_ids
+        ))
+    return result
 
 
 # Read all plants with optional filters
@@ -113,7 +138,7 @@ def getAllPlants(
     db: Session,
     plant: PlantSchema = None,
     current_user: User = None
-) -> List[Plant]:
+):
     query = db.query(Plant).filter(Plant.del_flag == False)
 
     # Apply role-based filtering for n-to-n relations
@@ -139,9 +164,18 @@ def getAllPlants(
         return query.order_by(desc(Plant.created_at)).offset((plant.page-1)*plant.limit).limit(plant.limit).all()
 
     # If no plant parameter, just return filtered results ordered by created_at
-    return query.order_by(desc(Plant.created_at)).all()
+    plants = query.order_by(desc(Plant.created_at)).all()
+    result = []
+    for plant_obj in plants:
+        client_ids, operator_ids = get_client_operator_ids(db, plant_obj.plant_id)
+        result.append(PlantSchema(
+            **plant_obj.__dict__,
+            client_id=client_ids,
+            operator_id=operator_ids
+        ))
+    return result
 # Update a plant
-def updatePlant(db: Session, plant_id: int, plant: PlantSchema) -> Optional[Plant]:
+def updatePlant(db: Session, plant_id: int, plant: PlantSchema):
     existing_plant = db.query(Plant).filter(Plant.plant_id == plant_id, Plant.del_flag == False).first()
     if not existing_plant:
         raise HTTPException(status_code=404, detail="Plant not found")
@@ -183,7 +217,12 @@ def updatePlant(db: Session, plant_id: int, plant: PlantSchema) -> Optional[Plan
 
     db.commit()
     db.refresh(existing_plant)
-    return existing_plant
+    client_ids, operator_ids = get_client_operator_ids(db, plant_id)
+    return PlantSchema(
+        **existing_plant.__dict__,
+        client_id=client_ids,
+        operator_id=operator_ids
+    )
 
 # Soft delete a plant
 def deletePlant(db: Session, plant_id: int) -> bool:
