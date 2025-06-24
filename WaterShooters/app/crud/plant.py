@@ -57,10 +57,20 @@ def createPlant(db: Session, plant: PlantSchema):
     db.refresh(new_plant)
     client_ids, operator_ids = get_client_operator_ids(db, new_plant.plant_id)
     return PlantSchema(
-        **new_plant.__dict__,
-        client_id=client_ids,
-        operator_id=operator_ids
-    )
+                new_plant_id=new_plant.new_plant_id,
+                new_plant_type_id=new_plant.new_plant_type_id,
+                new_plant_name=new_plant.new_plant_name,
+                address=new_plant.address,
+                new_plant_capacity=new_plant.new_plant_capacity,
+                hotel_name=new_plant.hotel_name,
+                new_plant_description=new_plant.new_plant_description,
+                operational_status=new_plant.operational_status,
+                created_at=new_plant.created_at,
+                updated_at=new_plant.updated_at,
+                del_flag=new_plant.del_flag,
+                client_id=client_ids,
+                operator_id=operator_ids
+            )
 
 
 
@@ -78,10 +88,20 @@ def getPlantById(db: Session, plant_id: int):
     client_ids, operator_ids = get_client_operator_ids(db, plant.plant_id)
 
     return PlantSchema(
-        **plant.__dict__,
-        client_id=client_ids,
-        operator_id=operator_ids
-    )
+                plant_id=plant.plant_id,
+                plant_type_id=plant.plant_type_id,
+                plant_name=plant.plant_name,
+                address=plant.address,
+                plant_capacity=plant.plant_capacity,
+                hotel_name=plant.hotel_name,
+                plant_description=plant.plant_description,
+                operational_status=plant.operational_status,
+                created_at=plant.created_at,
+                updated_at=plant.updated_at,
+                del_flag=plant.del_flag,
+                client_id=client_ids,
+                operator_id=operator_ids
+            )
 
 
 def getPlantsByPlantTypeId(db: Session, plant_type_id: int, user: User):
@@ -126,10 +146,20 @@ def getPlantsByPlantTypeId(db: Session, plant_type_id: int, user: User):
     for plant in plants:
         client_ids, operator_ids = get_client_operator_ids(db, plant.plant_id)
         result.append(PlantSchema(
-            **plant.__dict__,
-            client_id=client_ids,
-            operator_id=operator_ids
-        ))
+                plant_id=plant.plant_id,
+                plant_type_id=plant.plant_type_id,
+                plant_name=plant.plant_name,
+                address=plant.address,
+                plant_capacity=plant.plant_capacity,
+                hotel_name=plant.hotel_name,
+                plant_description=plant.plant_description,
+                operational_status=plant.operational_status,
+                created_at=plant.created_at,
+                updated_at=plant.updated_at,
+                del_flag=plant.del_flag,
+                client_id=client_ids,
+                operator_id=operator_ids
+            ))
     return result
 
 
@@ -167,7 +197,17 @@ def getAllPlants(
         for plant_obj in plants:
             client_ids, operator_ids = get_client_operator_ids(db, plant_obj.plant_id)
             result.append(PlantSchema(
-                **plant_obj.__dict__,
+                plant_id=plant_obj.plant_id,
+                plant_type_id=plant_obj.plant_type_id,
+                plant_name=plant_obj.plant_name,
+                address=plant_obj.address,
+                plant_capacity=plant_obj.plant_capacity,
+                hotel_name=plant_obj.hotel_name,
+                plant_description=plant_obj.plant_description,
+                operational_status=plant_obj.operational_status,
+                created_at=plant_obj.created_at,
+                updated_at=plant_obj.updated_at,
+                del_flag=plant_obj.del_flag,
                 client_id=client_ids,
                 operator_id=operator_ids
             ))
@@ -179,10 +219,20 @@ def getAllPlants(
     for plant_obj in plants:
         client_ids, operator_ids = get_client_operator_ids(db, plant_obj.plant_id)
         result.append(PlantSchema(
-            **plant_obj.__dict__,
-            client_id=client_ids,
-            operator_id=operator_ids
-        ))
+                plant_id=plant_obj.plant_id,
+                plant_type_id=plant_obj.plant_type_id,
+                plant_name=plant_obj.plant_name,
+                address=plant_obj.address,
+                plant_capacity=plant_obj.plant_capacity,
+                hotel_name=plant_obj.hotel_name,
+                plant_description=plant_obj.plant_description,
+                operational_status=plant_obj.operational_status,
+                created_at=plant_obj.created_at,
+                updated_at=plant_obj.updated_at,
+                del_flag=plant_obj.del_flag,
+                client_id=client_ids,
+                operator_id=operator_ids
+            ))
     return result
 # Update a plant
 def updatePlant(db: Session, plant_id: int, plant: PlantSchema):
@@ -229,10 +279,20 @@ def updatePlant(db: Session, plant_id: int, plant: PlantSchema):
     db.refresh(existing_plant)
     client_ids, operator_ids = get_client_operator_ids(db, plant_id)
     return_value = PlantSchema(
-        **existing_plant.__dict__,
-        client_id=client_ids,
-        operator_id=operator_ids
-    )
+                plant_id=existing_plant.plant_id,
+                plant_type_id=existing_plant.plant_type_id,
+                plant_name=existing_plant.plant_name,
+                address=existing_plant.address,
+                plant_capacity=existing_plant.plant_capacity,
+                hotel_name=existing_plant.hotel_name,
+                plant_description=existing_plant.plant_description,
+                operational_status=existing_plant.operational_status,
+                created_at=existing_plant.created_at,
+                updated_at=existing_plant.updated_at,
+                del_flag=existing_plant.del_flag,
+                client_id=client_ids,
+                operator_id=operator_ids
+            )
     print(return_value)
     return return_value
 
