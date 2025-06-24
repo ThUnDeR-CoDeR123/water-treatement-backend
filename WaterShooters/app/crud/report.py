@@ -7,6 +7,7 @@ from reportlab.pdfgen import canvas
 from sqlalchemy.orm import Session
 from app.models.base import EquipmentLog, ChemicalLog, FlowLog, FlowParameterLog
 from sqlalchemy.sql import func
+from collections import defaultdict
 
 
 
