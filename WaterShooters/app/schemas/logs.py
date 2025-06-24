@@ -19,6 +19,7 @@ class FlowParameterLogSchema(BaseModel):
     daily_log_id: Optional[int]= None
     plant_flow_parameter_id: Optional[int]= None
     value: Optional[float]= None
+    outlet_value: Optional[float]= None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
     shift : Optional[int]=0 #0 for morning, 1 for evening, 2 for night

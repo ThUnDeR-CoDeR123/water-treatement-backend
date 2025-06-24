@@ -105,7 +105,8 @@ def createFlowParameterLog(db: Session, log: FlowParameterLogSchema, user_id: in
                                     plant_flow_parameter_id =log.plant_flow_parameter_id, 
                                     plant_id=log.plant_id,
                                     shift=log.shift,
-                                    value=log.value,
+                                    inlet_value=log.value,
+                                    outlet_value=log.outlet_value,
                                     daily_log_id=existing_log.log_id, 
                                     created_by=user_id)
         db.add(new_log)
@@ -126,7 +127,8 @@ def createFlowParameterLog(db: Session, log: FlowParameterLogSchema, user_id: in
                                     plant_flow_parameter_id =log.plant_flow_parameter_id, 
                                     plant_id=log.plant_id,
                                     shift=log.shift,
-                                    value=log.value,
+                                    inlet_value=log.value,
+                                    outlet_value=log.outlet_value,
                                     daily_log_id=new_daily_log.log_id, 
                                     created_by=user_id)
         db.add(new_log)
@@ -392,7 +394,9 @@ def updateFlowParameterLogs(db: Session, log: FlowParameterLogSchema, user_id: i
         raise HTTPException(status_code=404, detail="Logs not found")
 
     if log.value is not None:
-        flow_parameter_log.value = log.value
+        flow_parameter_log.inlet_value = log.value
+    if log.outlet_value is not None:
+        flow_parameter_log.outlet_value = log.outlet_value
     if log.shift is not None:
         flow_parameter_log.shift = log.shift
     db.commit()
