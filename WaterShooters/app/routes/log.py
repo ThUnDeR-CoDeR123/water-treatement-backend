@@ -217,50 +217,50 @@ def update_flow_log(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@logRouter.delete("/delete/equipment")
+@logRouter.delete("/delete/equipment/{equipment_log_id}")
 def delete_equipment_logs(
-    log: EquipmentLogSchema,
+    equipment_log_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(getAdmin)
 ):
     try:
-        deleteEquipmentLog(db, log)
+        deleteEquipmentLog(db, EquipmentLogSchema(equipment_log_id=equipment_log_id))
         return {"message": "Equipment log deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@logRouter.delete("/delete/flowparameter")
+@logRouter.delete("/delete/flowparameter/{flow_parameter_log_id}")
 def delete_flow_parameter_logs(
-    log: FlowParameterLogSchema,
+    flow_parameter_log_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(getAdmin)
 ):
     try:
-        deleteFlowParameterLog(db, log)
+        deleteFlowParameterLog(db, FlowParameterLogSchema(flow_parameter_log_id=flow_parameter_log_id))
         return {"message": "Flow parameter log deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@logRouter.delete("/delete/chemical")
+@logRouter.delete("/delete/chemical/{chemical_log_id}")
 def delete_chemical_logs(
-    log: ChemicalLogSchema,
+    chemical_log_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(getAdmin)
 ):
     try:
-        deleteChemicalLog(db, log)
+        deleteChemicalLog(db, ChemicalLogSchema(chemical_log_id=chemical_log_id))
         return {"message": "Chemical log deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@logRouter.delete("/delete/flow")
+@logRouter.delete("/delete/flow/{flow_log_id}")
 def delete_flow_log(
-    log: FlowLogSchema,
+    flow_log_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(getAdmin)
 ):
     try:
-        crud.delete_flow_log(db, log)
+        crud.delete_flow_log(db, FlowLogSchema(flow_log_id=flow_log_id))
         return {"message": "Flow log deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
