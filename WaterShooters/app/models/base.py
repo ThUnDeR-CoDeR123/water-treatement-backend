@@ -373,7 +373,7 @@ class FlowParameterLog(Base):
     daily_log_id: Mapped[int] = mapped_column(Integer,ForeignKey("dailylog.log_id"),nullable=False)
     plant_flow_parameter_id: Mapped[int] = mapped_column(Integer,ForeignKey("plantflowparameter.plant_flow_parameter_id"),nullable=False)
     created_by: Mapped[int] = mapped_column(Integer,ForeignKey("user.user_id"),nullable=False)
-    
+    parameter_name: Mapped[str] = mapped_column(String, nullable=False)
     shift: Mapped[int] = mapped_column(Integer, nullable=False)#0 for morning, 1 for evening, 2 for night
     inlet_value: Mapped[float] = mapped_column(Float, nullable=False)
     outlet_value: Mapped[float] = mapped_column(Float, nullable=False)
@@ -401,6 +401,7 @@ class ChemicalLog(Base):
     daily_log_id: Mapped[int] = mapped_column(Integer,ForeignKey("dailylog.log_id"),nullable=False)
     plant_chemical_id: Mapped[int] = mapped_column(Integer,ForeignKey("plantchemical.plant_chemical_id"),nullable=False)
     created_by: Mapped[int] = mapped_column(Integer,ForeignKey("user.user_id"),nullable=False)
+    chemical_name: Mapped[str] = mapped_column(String, nullable=False)
 
     shift: Mapped[int] = mapped_column(Integer, nullable=False)#0 for morning, 1 for evening, 2 for night
     quantity_left: Mapped[float] = mapped_column(Float, nullable=False)
@@ -430,7 +431,7 @@ class EquipmentLog(Base):
     plant_equipment_id: Mapped[int] = mapped_column(Integer,ForeignKey("plantequipment.plant_equipment_id"),nullable=False)
     plant_id: Mapped[int] = mapped_column(Integer,ForeignKey("plant.plant_id"),nullable=False)
     created_by: Mapped[int] = mapped_column(Integer,ForeignKey("user.user_id"),nullable=False)
-
+    equipment_name: Mapped[str] = mapped_column(String, nullable=False)
     shift: Mapped[int] = mapped_column(Integer, nullable=False)#0 for morning, 1 for evening, 2 for night
     equipment_status: Mapped[int] = mapped_column(Integer, default=0)# 0 for okay, 1 for critical, 2 for down
     equipment_remark: Mapped[Optional[str]] = mapped_column(String, nullable=True)
