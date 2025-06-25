@@ -45,6 +45,7 @@ def create_log(
     try:
         return createFlowParameterLog(db, log,current_user.user_id)
     except Exception as e:
+        print(str(e))
         raise HTTPException(status_code=500, detail=str(e))
 @logRouter.post("/create/chemical")
 def create_log(
@@ -55,6 +56,7 @@ def create_log(
     try:
         return createChemicalLog(db, log,current_user.user_id)
     except Exception as e:
+        print(str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 @logRouter.post("/create/flow")
