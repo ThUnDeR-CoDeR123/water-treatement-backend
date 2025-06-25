@@ -81,6 +81,7 @@ class User(Base):
     # Optional fields
     first_name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     last_name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     address: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     qualification: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     DOB: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)

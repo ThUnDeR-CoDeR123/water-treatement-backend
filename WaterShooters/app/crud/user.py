@@ -63,6 +63,7 @@ def createUser(db: Session, user: UserSchema) -> User:
         aadhar_no=user.aadhar_no,
         first_name=user.first_name,
         last_name=user.last_name,
+        name=user.first_name + " " + user.last_name,
         phone_no=user.phone_no,
         address=user.address,
         qualification=user.qualification,
