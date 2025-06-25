@@ -33,6 +33,7 @@ class UserSchema(BaseModel):
     password: Optional[str] = None
     aadhar_no: Optional[str] = None
     first_name: Optional[str] = None
+    name: Optional[str] = None
     last_name: Optional[str] = None
     phone_no: Optional[str] = None
     address: Optional[str] = None
