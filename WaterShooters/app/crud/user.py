@@ -114,7 +114,8 @@ def getAllUsers(db: Session,filter: UserSchema = None,) -> List[User]:
             query = query.filter(User.last_login == filter.last_login)
         if filter.is_admin is not None:
             query = query.filter(User.is_admin == filter.is_admin)
-
+        if filter.role_id is not None:
+            query = query.filter(User.role_id == filter.role_id)
     # Order by created_at descending and apply pagination
     return query.order_by(desc(User.created_at)).offset(filter.page).limit(filter.limit).all()
 
