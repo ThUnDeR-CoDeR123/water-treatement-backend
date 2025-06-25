@@ -45,6 +45,7 @@ def createEquipmentLog(db: Session, log: EquipmentLogSchema, user_id: int):
                                plant_equipment_id=log.plant_equipment_id,
                                equipment_status=log.equipment_status,
                                maintenance_done=log.maintenance_done,
+                               equipment_name=plant_equipment.equipment_name,
                                daily_log_id=existing_log.log_id, 
                                created_by=user_id)
         print("after inserting new equipment log")
@@ -67,6 +68,7 @@ def createEquipmentLog(db: Session, log: EquipmentLogSchema, user_id: int):
                                plant_equipment_id=log.plant_equipment_id,
                                equipment_status=log.equipment_status,
                                maintenance_done=log.maintenance_done,
+                               equipment_name=plant_equipment.equipment_name,
                                daily_log_id=new_daily_log.log_id, 
                                created_by=user_id)
         plant_equipment.status = log.equipment_status
@@ -97,7 +99,7 @@ def createFlowParameterLog(db: Session, log: FlowParameterLogSchema, user_id: in
     query = query.filter(func.date(DailyLog.created_at) == func.date(func.now()))  # Compare only date, not time
     existing_log = query.first()
     print("3.2")
-
+    # flow_parameter = db.query(PlantFlowParameter).filter(PlantFlowParameter.plant_flow_parameter_id == log.plant_flow_parameter_id).first()
     if existing_log:
         # If a daily log exists, create a new flow parameter log entry
         print("4")
@@ -107,7 +109,8 @@ def createFlowParameterLog(db: Session, log: FlowParameterLogSchema, user_id: in
                                     shift=log.shift,
                                     inlet_value=log.value,
                                     outlet_value=log.outlet_value,
-                                    daily_log_id=existing_log.log_id, 
+                                    daily_log_id=existing_log.log_id,
+                                    parameter_name=plant_flow_parameter.parameter_name, 
                                     created_by=user_id)
         db.add(new_log)
         db.commit()
@@ -129,6 +132,7 @@ def createFlowParameterLog(db: Session, log: FlowParameterLogSchema, user_id: in
                                     shift=log.shift,
                                     inlet_value=log.value,
                                     outlet_value=log.outlet_value,
+                                    parameter_name=plant_flow_parameter.parameter_name,
                                     daily_log_id=new_daily_log.log_id, 
                                     created_by=user_id)
         db.add(new_log)
@@ -154,7 +158,7 @@ def createChemicalLog(db: Session, log: ChemicalLogSchema, user_id: int):
         query = query.filter(DailyLog.shift == log.shift)
     query = query.filter(func.date(DailyLog.created_at) == func.date(func.now()))  # Compare only date, not time
     existing_log = query.first()
-
+    # plant_chemical = db.query(PlantChemical).filter(PlantChemical.plant_chemical_id == log.plant_chemical_id).first()
     if existing_log:
         # If a daily log exists, create a new chemical log entry
         if log.incomming_quantity:
@@ -166,6 +170,7 @@ def createChemicalLog(db: Session, log: ChemicalLogSchema, user_id: int):
             shift=log.shift,
             quantity_left=plant_chemical.quantity,
             quantity_used=log.quantity_used,
+            chemical_name=plant_chemical.chemical_name,
             sludge_discharge=log.sludge_discharge,
             daily_log_id=existing_log.log_id, 
             created_by=user_id)
@@ -189,6 +194,7 @@ def createChemicalLog(db: Session, log: ChemicalLogSchema, user_id: int):
             shift=log.shift,
             quantity_left=plant_chemical.quantity,
             quantity_used=log.quantity_used,
+            chemical_name=plant_chemical.chemical_name,
             sludge_discharge=log.sludge_discharge,
             daily_log_id=new_daily_log.log_id, 
             created_by=user_id)
