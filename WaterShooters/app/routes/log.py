@@ -185,7 +185,7 @@ def get_all_logs(log: getLogSchema, db: Session = Depends(get_db), current_user:
             raise HTTPException(status_code=400, detail="plant_id is required")
         if not log.start_date or not log.end_date:
             raise HTTPException(status_code=400, detail="start_date and end_date are required")
-        if not log.start_date < log.end_date:
+        if not log.start_date <= log.end_date:
             raise HTTPException(status_code=400, detail="start_date must be before end_date")
         chemicalLog = getChemicalLogs(db, ChemicalLogSchema(plant_id=log.plant_id, start_date=log.start_date, end_date=log.end_date), current_user.user_id)
         equipmentLog = getEquipmentLogs(db, EquipmentLogSchema(plant_id=log.plant_id, start_date=log.start_date, end_date=log.end_date), current_user.user_id)
