@@ -210,10 +210,12 @@ def getEquipmentLogs(db: Session, log: EquipmentLogSchema, user_id: int) -> List
     query = db.query(EquipmentLog).filter(EquipmentLog.del_flag == False)
     if log.plant_id is not None:
         query = query.filter(EquipmentLog.plant_id == log.plant_id)
-    if log.start_date is not None:
-        query = query.filter(EquipmentLog.created_at >= log.start_date)
-    if log.end_date is not None:
-        query = query.filter(EquipmentLog.created_at <= log.end_date)
+    if log.start_date is not None and log.end_date is not None:
+        query = query.filter(func.date(EquipmentLog.created_at).between(log.start_date, log.end_date))
+    elif log.start_date is not None:
+        query = query.filter(func.date(EquipmentLog.created_at) >= log.start_date)
+    elif log.end_date is not None:
+        query = query.filter(func.date(EquipmentLog.created_at) <= log.end_date)
     equipmentlogs = query.all()
 
     if not equipmentlogs:
@@ -224,10 +226,12 @@ def getChemicalLogs(db: Session, log: ChemicalLogSchema, user_id: int) -> List[C
     query = db.query(ChemicalLog).filter(ChemicalLog.del_flag == False)
     if log.plant_id is not None:
         query = query.filter(ChemicalLog.plant_id == log.plant_id)
-    if log.start_date is not None:
-        query = query.filter(ChemicalLog.created_at >= log.start_date)
-    if log.end_date is not None:
-        query = query.filter(ChemicalLog.created_at <= log.end_date)
+    if log.start_date is not None and log.end_date is not None:
+        query = query.filter(func.date(EquipmentLog.created_at).between(log.start_date, log.end_date))
+    elif log.start_date is not None:
+        query = query.filter(func.date(EquipmentLog.created_at) >= log.start_date)
+    elif log.end_date is not None:
+        query = query.filter(func.date(EquipmentLog.created_at) <= log.end_date)
     chemicallogs = query.all()
 
     if not chemicallogs:
@@ -238,10 +242,12 @@ def getFowParameterLogs(db: Session, log: FlowParameterLogSchema, user_id: int) 
     query = db.query(FlowParameterLog).filter(FlowParameterLog.del_flag == False)
     if log.plant_id is not None:
         query = query.filter(FlowParameterLog.plant_id == log.plant_id)
-    if log.start_date is not None:
-        query = query.filter(FlowParameterLog.created_at >= log.start_date)
-    if log.end_date is not None:
-        query = query.filter(FlowParameterLog.created_at <= log.end_date)
+    if log.start_date is not None and log.end_date is not None:
+        query = query.filter(func.date(EquipmentLog.created_at).between(log.start_date, log.end_date))
+    elif log.start_date is not None:
+        query = query.filter(func.date(EquipmentLog.created_at) >= log.start_date)
+    elif log.end_date is not None:
+        query = query.filter(func.date(EquipmentLog.created_at) <= log.end_date)
     flowparameterlogs = query.all()
 
     if not flowparameterlogs:
@@ -314,10 +320,12 @@ def get_flow_logs(db: Session, log: FlowLogSchema) -> List[FlowLog]:
     query = db.query(FlowLog).filter(FlowLog.del_flag == False)
     if log.plant_id is not None:
         query = query.filter(FlowLog.plant_id == log.plant_id)
-    if log.start_date is not None:
-        query = query.filter(FlowLog.created_at >= log.start_date)
-    if log.end_date is not None:
-        query = query.filter(FlowLog.created_at <= log.end_date)
+    if log.start_date is not None and log.end_date is not None:
+        query = query.filter(func.date(EquipmentLog.created_at).between(log.start_date, log.end_date))
+    elif log.start_date is not None:
+        query = query.filter(func.date(EquipmentLog.created_at) >= log.start_date)
+    elif log.end_date is not None:
+        query = query.filter(func.date(EquipmentLog.created_at) <= log.end_date)
     if log.shift is not None:
         query = query.filter(FlowLog.shift == log.shift)
         
