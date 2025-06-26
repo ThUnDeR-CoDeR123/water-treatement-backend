@@ -45,6 +45,11 @@ class EquipmentLogSchema(BaseModel):
     class Config:
         from_attributes = True
 
+class getLogSchema(BaseModel):
+    plant_id: Optional[int] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+
 class ChemicalLogSchema(BaseModel):
     plant_id : Optional[int] = None
     chemical_log_id: Optional[int] = None
