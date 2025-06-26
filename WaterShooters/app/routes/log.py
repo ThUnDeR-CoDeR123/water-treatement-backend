@@ -32,7 +32,7 @@ def create_log(
     db: Session = Depends(get_db),
     current_user: User = Depends(getPriviledgeUser)
 ):
-
+        print(log)
         return createEquipmentLog(db, log,current_user.user_id)
 
     
@@ -44,6 +44,7 @@ def create_log(
     current_user: User = Depends(getPriviledgeUser)
 ):
     try:
+        print(log)
         return createFlowParameterLog(db, log,current_user.user_id)
     except Exception as e:
         print(str(e))
@@ -55,6 +56,7 @@ def create_log(
     current_user: User = Depends(getPriviledgeUser)
 ):
     try:
+        print(log)
         return createChemicalLog(db, log,current_user.user_id)
     except Exception as e:
         print(str(e))
@@ -67,6 +69,7 @@ async def create_flow_log(
     current_user: User = Depends(getPriviledgeUser)
 ):
     try:
+        print(log)
         # Handle inlet image if provided
         if log.inlet_image:
             try:
@@ -219,6 +222,7 @@ def update_equipment_logs(
     current_user: User = Depends(get_current_user)
 ):
     try:
+        print(log)
         return updateEquipmentLogs(db, log, current_user.user_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -230,6 +234,7 @@ def update_flow_parameter_logs(
     current_user: User = Depends(get_current_user)
 ):
     try:
+        print(log)
         return updateFlowParameterLogs(db, log, current_user.user_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -241,6 +246,7 @@ def update_flow_log(
     current_user: User = Depends(getPriviledgeUser)
 ):
     try:
+        print(log)
         return crud.update_flow_log(db, log)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
