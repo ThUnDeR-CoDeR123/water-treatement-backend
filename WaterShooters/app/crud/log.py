@@ -381,7 +381,7 @@ def updateChemicalLogs(db: Session, log: ChemicalLogSchema, user_id: int) -> Lis
     if not chemical_log:
         raise HTTPException(status_code=404, detail="Logs not found")
     if log.incomming_quantity:
-            plant_chemical.quantity=plant_chemical.quantity+log.incomming_quantity-chemical_log.incoming_quantity
+            plant_chemical.quantity=plant_chemical.quantity+log.incomming_quantity-chemical_log.incomming_quantity
     plant_chemical.quantity=plant_chemical.quantity-log.quantity_used
     plant_chemical.quantity=plant_chemical.quantity+chemical_log.quantity_used
     if log.quantity_used is not None:
