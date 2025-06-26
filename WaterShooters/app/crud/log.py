@@ -384,14 +384,17 @@ def updateChemicalLogs(db: Session, log: ChemicalLogSchema, user_id: int) -> Lis
             plant_chemical.quantity=plant_chemical.quantity+log.incomming_quantity-chemical_log.incomming_quantity
     plant_chemical.quantity=plant_chemical.quantity-log.quantity_used
     plant_chemical.quantity=plant_chemical.quantity+chemical_log.quantity_used
+    old_quantity_used = chemical_log.quantity_used
+    old_incomming_quantity = chemical_log.incomming_quantity
     if log.quantity_used is not None:
         chemical_log.quantity_used = log.quantity_used
-    if log.quantity_left is not None:
-        chemical_log.quantity_left = plant_chemical.quantity
+    # if log.quantity_left is not None:
+    #     chemical_log.quantity_left = plant_chemical.quantity
     if log.sludge_discharge is not None:
         chemical_log.sludge_discharge = log.sludge_discharge
     if log.shift is not None:
         chemical_log.shift = log.shift
+    chemical_log.quantity_left=chemical_log.quantity_left + log.incomming_quantity - log.quantity_used + old_quantity_used - old_incomming_quantity
     db.commit()
     db.refresh(chemical_log)
 
