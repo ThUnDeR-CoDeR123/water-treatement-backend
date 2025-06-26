@@ -408,7 +408,7 @@ class ChemicalLog(Base):
     quantity_left: Mapped[float] = mapped_column(Float, nullable=False)
     quantity_used: Mapped[float] = mapped_column(Float, nullable=False)
     sludge_discharge: Mapped[bool] = mapped_column(Boolean, default=False)
-
+    incomming_quantity: Mapped[Optional[float]] = mapped_column(Float, nullable=True, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     del_flag: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
 

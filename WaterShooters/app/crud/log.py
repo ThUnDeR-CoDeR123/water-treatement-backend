@@ -170,6 +170,7 @@ def createChemicalLog(db: Session, log: ChemicalLogSchema, user_id: int):
             shift=log.shift,
             quantity_left=plant_chemical.quantity,
             quantity_used=log.quantity_used,
+            incoming_quantity=log.incomming_quantity if log.incomming_quantity else 0,
             chemical_name=plant_chemical.chemical_name,
             sludge_discharge=log.sludge_discharge,
             daily_log_id=existing_log.log_id, 
@@ -194,6 +195,7 @@ def createChemicalLog(db: Session, log: ChemicalLogSchema, user_id: int):
             shift=log.shift,
             quantity_left=plant_chemical.quantity,
             quantity_used=log.quantity_used,
+            incoming_quantity=log.incoming_quantity if log.incoming_quantity else 0,
             chemical_name=plant_chemical.chemical_name,
             sludge_discharge=log.sludge_discharge,
             daily_log_id=new_daily_log.log_id, 
@@ -379,7 +381,7 @@ def updateChemicalLogs(db: Session, log: ChemicalLogSchema, user_id: int) -> Lis
     if not chemical_log:
         raise HTTPException(status_code=404, detail="Logs not found")
     if log.incomming_quantity:
-            plant_chemical.quantity=plant_chemical.quantity+log.incomming_quantity
+            plant_chemical.quantity=plant_chemical.quantity+log.incomming_quantity-chemical_log.incoming_quantity
     plant_chemical.quantity=plant_chemical.quantity-log.quantity_used
     plant_chemical.quantity=plant_chemical.quantity+chemical_log.quantity_used
     if log.quantity_used is not None:
