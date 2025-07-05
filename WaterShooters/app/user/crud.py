@@ -8,7 +8,11 @@ from app.database import get_db
 from app.config import settings
 import httpx
 from passlib.context import CryptContext
+from datetime import datetime, timezone, timedelta
 
+def get_IST():
+    """Get current time in Indian Standard Time (IST)"""
+    return datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
@@ -71,7 +75,9 @@ def createUser(db: Session, user: UserSchema) -> User:
         is_verified=True,
         is_admin=True if user.role_id==1 else False,
         role_id=user.role_id,  # Assuming role_id 1 is for admin and 2 for user
-        del_flag=False
+        del_flag=False,
+        created_at=get_IST(),  # Use the IST function to set created_at
+        updated_at=get_IST()  # Use the IST function to set updated_at
     )
     db.add(new_user)
     db.commit()
@@ -129,6 +135,7 @@ def updateUser(db: Session, user_id: int, user: UserSchema) -> Optional[User]:
     for key, value in user.model_dump(exclude_unset=True).items():
         setattr(existing_user, key, value)
 
+    existing_user.updated_at = get_IST()  # Use the IST function to set updated_at
     db.commit()
     db.refresh(existing_user)
     return existing_user
@@ -140,6 +147,7 @@ def deleteUser(db: Session, user_id: int) -> bool:
         return False
 
     existing_user.del_flag = True
+    existing_user.updated_at = get_IST()  # Use the IST function to set updated_at
     db.commit()
     return True
 

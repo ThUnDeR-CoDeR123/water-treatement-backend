@@ -4,8 +4,10 @@ from typing import List, Optional
 from app.models.base import Plant, User, PlantType,PlantChemical, PlantEquipment, PlantFlowParameter,ClientPlant,OperatorPlant
 from app.plant.schema import PlantSchema
 from fastapi import HTTPException
-
-
+from datetime import datetime, timedelta, timezone
+def get_IST():
+    """Get current time in Indian Standard Time (IST)"""
+    return datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
 
 def get_client_operator_ids(db: Session, plant_id: int):
     client_ids = [cp.client_id for cp in db.query(ClientPlant).filter(ClientPlant.plant_id == plant_id).all()]
@@ -37,7 +39,9 @@ def createPlant(db: Session, plant: PlantSchema):
         plant_capacity=plant.plant_capacity,
         hotel_name=plant.hotel_name if plant.hotel_name is not None else None,
         plant_description=plant.plant_description if plant.plant_description is not None else None,
-        operational_status=plant.operational_status if plant.operational_status is not None else False
+        operational_status=plant.operational_status if plant.operational_status is not None else False,
+        created_at=get_IST(),  # Use the IST function to set created_at
+        updated_at=get_IST()  # Use the IST function to set updated_at
     )
     db.add(new_plant)
     db.commit()
@@ -247,10 +251,11 @@ def updatePlant(db: Session, plant_id: int, plant: PlantSchema):
     operator_ids = update_data.pop("operator_id", None)
     update_data.pop("plant_id", None)
     update_data.pop("created_at", None)
-    update_data.pop("updated_at", None)
     update_data.pop("del_flag", None)
     update_data.pop("limit", None)
     update_data.pop("page", None)
+
+    update_data["updated_at"] = get_IST()  # Use the IST function to set updated_at
     # Update plant fields
     for key, value in update_data.items():
         setattr(existing_plant, key, value)
@@ -303,6 +308,7 @@ def deletePlant(db: Session, plant_id: int) -> bool:
         raise HTTPException(status_code=404, detail="Plant not found")
 
     existing_plant.del_flag = True
+    existing_plant.updated_at = get_IST()  # Use the IST function to set updated_at
     db.commit()
     return True
 

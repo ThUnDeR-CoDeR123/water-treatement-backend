@@ -3,6 +3,13 @@ from app.models.base import PlantFlowParameter
 from app.parameter.schema import PlantFlowParameterSchema
 from datetime import datetime
 from sqlalchemy import and_
+from datetime import datetime, timedelta, timezone
+
+
+def get_IST():
+    """Get current time in Indian Standard Time (IST)"""
+    return datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
+
 
 def create_plant_flow_parameter(db: Session, plant_flow_parameter: PlantFlowParameterSchema):
     """Create a new plant flow parameter"""
@@ -17,9 +24,9 @@ def create_plant_flow_parameter(db: Session, plant_flow_parameter: PlantFlowPara
     # Set required fields
     db_plant_flow_parameter.plant_id = plant_flow_parameter.plant_id
     db_plant_flow_parameter.parameter_name = plant_flow_parameter.parameter_name
-    db_plant_flow_parameter.created_at = datetime.now()
-    db_plant_flow_parameter.updated_at = datetime.now()
-    
+    db_plant_flow_parameter.created_at = get_IST()
+    db_plant_flow_parameter.updated_at = get_IST()
+
     # Set optional fields if provided
     if plant_flow_parameter.parameter_unit is not None:
         db_plant_flow_parameter.parameter_unit = plant_flow_parameter.parameter_unit
@@ -67,7 +74,7 @@ def update_plant_flow_parameter(db: Session, plant_flow_parameter_id: int, plant
         if plant_flow_parameter.tolerance is not None:
             db_plant_flow_parameter.tolerance = plant_flow_parameter.tolerance
             
-        db_plant_flow_parameter.updated_at = datetime.now()
+        db_plant_flow_parameter.updated_at = get_IST()  # Use the IST function to set updated_at
         db.commit()
         db.refresh(db_plant_flow_parameter)
     return db_plant_flow_parameter
@@ -77,6 +84,6 @@ def delete_plant_flow_parameter(db: Session, plant_flow_parameter_id: int):
     db_plant_flow_parameter = get_plant_flow_parameter(db, plant_flow_parameter_id)
     if db_plant_flow_parameter:
         db_plant_flow_parameter.del_flag = True
-        db_plant_flow_parameter.updated_at = datetime.now()
+        db_plant_flow_parameter.updated_at = get_IST()  # Use the IST function to set updated_at
         db.commit()
     return db_plant_flow_parameter
