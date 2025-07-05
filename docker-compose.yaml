@@ -1,55 +1,55 @@
 services:
-  # traefik:
-  #   image: traefik:latest
-  #   container_name: traefik
-  #   restart: unless-stopped
-  #   security_opt:
-  #     - no-new-privileges:true
-  #   command:
-  #     - "--global.sendAnonymousUsage=false"
-  #     - "--api.insecure=true"
-  #     - "--providers.docker=true"
-  #     - "--providers.docker.exposedbydefault=false"
-  #     - "--api.dashboard=true"
-  #     - "--entrypoints.web.address=:80"
-  #     - "--entrypoints.websecure.address=:443"
-  #     - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-  #     - "--certificatesresolvers.myresolver.acme.email=prasverma@gmail.com"
-  #     - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-  #   ports:
-  #     - target: 80
-  #       published: 80
-  #       protocol: tcp
-  #     - target: 443
-  #       published: 443
-  #       protocol: tcp
-  #   volumes:
-  #     - "/var/run/docker.sock:/var/run/docker.sock:ro"
-  #     - "traefik-certificates:/letsencrypt"
-  #   networks:
-  #     - microservices-network
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    command:
+      - "--global.sendAnonymousUsage=false"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--api.dashboard=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=prasverma@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+      - target: 443
+        published: 443
+        protocol: tcp
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "traefik-certificates:/letsencrypt"
+    networks:
+      - microservices-network
 
   watershooters:
     build: ./WaterShooters
     container_name: watershooters_service
-    ports:
-      - 8005:8005  # Internal access only
+    expose:
+      - 8005  # Internal access only
     env_file:
       - ./WaterShooters/.env
     volumes:
       - images_data:/app/images
-    # labels:
-    #   - "traefik.enable=true"
-    #   - "traefik.http.routers.watershooters.rule=Host(`api.watershooters.in`) || PathPrefix(`/`)"
-    #   - "traefik.http.routers.watershooters.entrypoints=websecure"
-    #   - "traefik.http.routers.watershooters.tls.certresolver=myresolver"
-    #   - "traefik.http.services.watershooters.loadbalancer.server.port=8005"
-    #   - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
-    #   - "traefik.http.middlewares.cors.headers.accesscontrolallowheaders=*"
-    #   - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
-    #   - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
-    #   - "traefik.http.middlewares.cors.headers.addvaryheader=true"
-    #   - "traefik.http.routers.watershooters.middlewares=cors"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.watershooters.rule=Host(`api.watershooters.in`) || PathPrefix(`/`)"
+      - "traefik.http.routers.watershooters.entrypoints=websecure"
+      - "traefik.http.routers.watershooters.tls.certresolver=myresolver"
+      - "traefik.http.services.watershooters.loadbalancer.server.port=8005"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.cors.headers.addvaryheader=true"
+      - "traefik.http.routers.watershooters.middlewares=cors"
     networks:
       - microservices-network
 
@@ -59,4 +59,4 @@ networks:
 
 volumes:
   images_data:
-  # traefik-certificates:
+  traefik-certificates:
