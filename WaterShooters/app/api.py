@@ -10,7 +10,7 @@ from app.logs.equipment.routes import equipmentLogRouter
 from app.equipment.routes import equipmentRouter
 from app.chemical.routes import chemicalRouter
 from app.logs.flow.images import imageRouter
-
+from app.logs.logs import logRouter
 
 
 
@@ -26,3 +26,6 @@ def register_routes(app: FastAPI):
     app.include_router(equipmentRouter)
     app.include_router(chemicalRouter)
     app.include_router(imageRouter)
+    app.include_router(logRouter)
+
+

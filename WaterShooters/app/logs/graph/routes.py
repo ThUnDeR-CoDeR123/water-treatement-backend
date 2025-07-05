@@ -20,6 +20,7 @@ graphLogRouter = APIRouter(prefix="/api/v1/logs", tags=["graphLog"])
 
 
 
+
 @graphLogRouter.post("/graph-data", response_model=GraphDataSeriesResponse)
 def get_graph_data(
     request: GraphDataRequest,
