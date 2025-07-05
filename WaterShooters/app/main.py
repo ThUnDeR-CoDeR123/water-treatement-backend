@@ -1,19 +1,11 @@
 from fastapi import FastAPI,HTTPException,Request
-from app.routes.users import tokenRouter
-from app.routes.plant import plantrouter
-from app.routes.log import logRouter
-from app.routes.images import imageRouter
-from app.routes.forgetPasswordRoutes import forgetRouter
-from app.routes.plantequipment import router as plantequipment_router
-from app.routes.plantchemical import router as plantchemical_router
-from app.routes.plantflowparameter import router as plantflowparameter_router
-from app.routes.plantequipment import router as plantequipment_router
 
 from app.database import  engine
 from app.models.base import Base
 from fastapi.middleware.cors import CORSMiddleware
-from app.config import settings
 from fastapi.responses import JSONResponse
+from app.api import register_routes
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -37,14 +29,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(plantrouter)
-app.include_router(logRouter)
-app.include_router(tokenRouter)
-app.include_router(imageRouter)
-app.include_router(forgetRouter)
-app.include_router(plantequipment_router)
-app.include_router(plantchemical_router)
-app.include_router(plantflowparameter_router)
+register_routes(app)
+
 
 @app.get('/')
 def home():
