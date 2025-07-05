@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.base import PlantEquipment
 from app.equipment.schema import PlantEquipmentSchema
-from datetime import datetime
+from datetime import datetime,timedelta,timezone
 from sqlalchemy import and_
 
 def create_plant_equipment(db: Session, plant_equipment: PlantEquipmentSchema):
@@ -17,9 +17,9 @@ def create_plant_equipment(db: Session, plant_equipment: PlantEquipmentSchema):
     # Set required fields
     db_plant_equipment.plant_id = plant_equipment.plant_id
     db_plant_equipment.equipment_name = plant_equipment.equipment_name
-    db_plant_equipment.created_at = datetime.now()
-    db_plant_equipment.updated_at = datetime.now()
-    
+    db_plant_equipment.created_at = datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
+    db_plant_equipment.updated_at = datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
+
     # Set optional fields if provided
     if plant_equipment.equipment_type is not None:
         db_plant_equipment.equipment_type = plant_equipment.equipment_type
@@ -67,7 +67,7 @@ def update_plant_equipment(db: Session, plant_equipment_id: int, plant_equipment
         if plant_equipment.status is not None:
             db_plant_equipment.status = plant_equipment.status
             
-        db_plant_equipment.updated_at = datetime.now()
+        db_plant_equipment.updated_at = datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
         db.commit()
         db.refresh(db_plant_equipment)
     return db_plant_equipment
@@ -77,6 +77,6 @@ def delete_plant_equipment(db: Session, plant_equipment_id: int):
     db_plant_equipment = get_plant_equipment(db, plant_equipment_id)
     if db_plant_equipment:
         db_plant_equipment.del_flag = True
-        db_plant_equipment.updated_at = datetime.now()
+        db_plant_equipment.updated_at = datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
         db.commit()
     return db_plant_equipment

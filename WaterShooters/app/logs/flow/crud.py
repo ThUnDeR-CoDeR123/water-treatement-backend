@@ -5,7 +5,12 @@ from app.logs.flow.schema import FlowLogSchema
 from app.models.base import DailyLog, EquipmentLog, FlowLog
 from fastapi import HTTPException
 from typing import List
+from datetime import datetime, timedelta, timezone
 
+
+def get_IST():
+    """Get current time in Indian Standard Time (IST)"""
+    return datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
 
 
 def create_flow_log(db: Session, log: FlowLogSchema, user_id: int):
@@ -19,7 +24,7 @@ def create_flow_log(db: Session, log: FlowLogSchema, user_id: int):
         query = query.filter(DailyLog.shift == log.shift)
     else:
         log.shift = 0
-    query = query.filter(func.date(DailyLog.created_at) == func.date(func.now()))  # Compare only date, not time
+    query = query.filter(func.date(DailyLog.created_at) == func.date(get_IST()))  # Compare only date, not time
     existing_log = query.first()
     
     if existing_log:
@@ -32,7 +37,8 @@ def create_flow_log(db: Session, log: FlowLogSchema, user_id: int):
             inlet_image=log.inlet_image,
             outlet_image=log.outlet_image,
             shift=log.shift,
-            created_by=user_id
+            created_by=user_id,
+            created_at=get_IST()  # Use the IST function to set created_at
         )
         db.add(new_log)
         db.commit()
@@ -43,7 +49,8 @@ def create_flow_log(db: Session, log: FlowLogSchema, user_id: int):
         new_daily_log = DailyLog(
             plant_id=log.plant_id,
             shift=log.shift,
-            created_by=user_id
+            created_by=user_id,
+            created_at=get_IST()  # Use the IST function to set created_at
         )
         db.add(new_daily_log)
         db.commit()
@@ -57,7 +64,8 @@ def create_flow_log(db: Session, log: FlowLogSchema, user_id: int):
             inlet_image=log.inlet_image,
             outlet_image=log.outlet_image,
             shift=log.shift,
-            created_by=user_id
+            created_by=user_id,
+            created_at=get_IST()
         )
         db.add(new_log)
         db.commit()
@@ -111,7 +119,8 @@ def update_flow_log(db: Session, log: FlowLogSchema) -> FlowLog:
         flow_log.outlet_image = log.outlet_image
     if log.shift is not None:
         flow_log.shift = log.shift
-        
+    
+    flow_log.updated_at = get_IST()  # Use the IST function to set updated_at
     db.commit()
     db.refresh(flow_log)
     return flow_log
@@ -124,5 +133,6 @@ def delete_flow_log(db: Session, log: FlowLogSchema) -> bool:
     if not flow_log:
         raise HTTPException(status_code=404, detail="Flow log not found")
     flow_log.del_flag = True
+    flow_log.updated_at = get_IST()  # Use the IST function to set updated_at
     db.commit()
     return True

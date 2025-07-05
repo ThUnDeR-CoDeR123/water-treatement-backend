@@ -4,7 +4,12 @@ from app.logs.parameter.schema import FlowParameterLogSchema
 from app.models.base import DailyLog, EquipmentLog, FlowParameterLog, ChemicalLog, PlantEquipment, PlantFlowParameter, PlantChemical, FlowLog
 from fastapi import HTTPException
 from typing import List
+from datetime import datetime, timedelta, timezone
 
+
+def get_IST():
+    """Get current time in Indian Standard Time (IST)"""
+    return datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
 
 def createFlowParameterLog(db: Session, log: FlowParameterLogSchema, user_id: int):
     print("1")
@@ -25,7 +30,7 @@ def createFlowParameterLog(db: Session, log: FlowParameterLogSchema, user_id: in
     if log.shift is not None:
         print("3.1")
         query = query.filter(DailyLog.shift == log.shift)
-    query = query.filter(func.date(DailyLog.created_at) == func.date(func.now()))  # Compare only date, not time
+    query = query.filter(func.date(DailyLog.created_at) == func.date(get_IST()))  # Compare only date, not time
     existing_log = query.first()
     print("3.2")
     # flow_parameter = db.query(PlantFlowParameter).filter(PlantFlowParameter.plant_flow_parameter_id == log.plant_flow_parameter_id).first()
@@ -40,7 +45,9 @@ def createFlowParameterLog(db: Session, log: FlowParameterLogSchema, user_id: in
                                     outlet_value=log.outlet_value,
                                     daily_log_id=existing_log.log_id,
                                     parameter_name=plant_flow_parameter.parameter_name, 
-                                    created_by=user_id)
+                                    created_by=user_id,
+                                    created_at=get_IST()  # Use the IST function to set created_at
+        )
         db.add(new_log)
         db.commit()
         db.refresh(new_log)
@@ -49,7 +56,7 @@ def createFlowParameterLog(db: Session, log: FlowParameterLogSchema, user_id: in
     else:
         # Create a daily log entry
         print("6")
-        new_daily_log = DailyLog(plant_id=log.plant_id, shift=log.shift, created_by=user_id)
+        new_daily_log = DailyLog(plant_id=log.plant_id, shift=log.shift, created_by=user_id, created_at=get_IST())  # Use the IST function to set created_at
         db.add(new_daily_log)
         db.commit()
 
@@ -63,7 +70,9 @@ def createFlowParameterLog(db: Session, log: FlowParameterLogSchema, user_id: in
                                     outlet_value=log.outlet_value,
                                     parameter_name=plant_flow_parameter.parameter_name,
                                     daily_log_id=new_daily_log.log_id, 
-                                    created_by=user_id)
+                                    created_by=user_id,
+                                    created_at=get_IST()  # Use the IST function to set created_at
+        )
         db.add(new_log)
         db.commit()
         print("8")
@@ -100,6 +109,7 @@ def updateFlowParameterLogs(db: Session, log: FlowParameterLogSchema, user_id: i
         flow_parameter_log.outlet_value = log.outlet_value
     if log.shift is not None:
         flow_parameter_log.shift = log.shift
+    flow_parameter_log.updated_at = get_IST()  # Use the IST function to set updated_at
     db.commit()
     db.refresh(flow_parameter_log)
 
@@ -110,5 +120,6 @@ def deleteFlowParameterLog(db: Session, log: FlowParameterLogSchema) -> bool:
     if not flow_parameter_log:
         raise HTTPException(status_code=404, detail="Logs not found")
     flow_parameter_log.del_flag = True
+    flow_parameter_log.updated_at = get_IST()  # Use the IST function to set updated_at
     db.commit()
     return True

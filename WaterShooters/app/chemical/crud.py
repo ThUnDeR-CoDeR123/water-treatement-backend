@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.base import PlantChemical
 from app.chemical.schema import PlantChemicalSchema
-from datetime import datetime
+from datetime import datetime,timedelta,timezone
 from sqlalchemy import and_
 
 def create_plant_chemical(db: Session, plant_chemical: PlantChemicalSchema):
@@ -17,9 +17,9 @@ def create_plant_chemical(db: Session, plant_chemical: PlantChemicalSchema):
     # Set required fields
     db_plant_chemical.plant_id = plant_chemical.plant_id
     db_plant_chemical.chemical_name = plant_chemical.chemical_name
-    db_plant_chemical.created_at = datetime.now()
-    db_plant_chemical.updated_at = datetime.now()
-    
+    db_plant_chemical.created_at = datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
+    db_plant_chemical.updated_at = datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
+
     # Set optional fields if provided
     if plant_chemical.chemical_unit is not None:
         db_plant_chemical.chemical_unit = plant_chemical.chemical_unit
@@ -63,7 +63,7 @@ def update_plant_chemical(db: Session, plant_chemical_id: int, plant_chemical: P
         if plant_chemical.quantity is not None:
             db_plant_chemical.quantity = plant_chemical.quantity
             
-        db_plant_chemical.updated_at = datetime.now()
+        db_plant_chemical.updated_at = datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
         db.commit()
         db.refresh(db_plant_chemical)
     return db_plant_chemical
@@ -73,6 +73,6 @@ def delete_plant_chemical(db: Session, plant_chemical_id: int):
     db_plant_chemical = get_plant_chemical(db, plant_chemical_id)
     if db_plant_chemical:
         db_plant_chemical.del_flag = True
-        db_plant_chemical.updated_at = datetime.now()
+        db_plant_chemical.updated_at = datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
         db.commit()
     return db_plant_chemical

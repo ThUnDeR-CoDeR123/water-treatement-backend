@@ -6,8 +6,12 @@ from app.logs.equipment.schema import (
 from app.models.base import DailyLog, EquipmentLog, FlowParameterLog, ChemicalLog, PlantEquipment, PlantFlowParameter, PlantChemical, FlowLog
 from fastapi import HTTPException
 from typing import List
+from datetime import datetime, timedelta, timezone
 
-# Create a log entry
+
+def get_IST():
+    """Get current time in Indian Standard Time (IST)"""
+    return datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
 
 def createEquipmentLog(db: Session, log: EquipmentLogSchema, user_id: int):
     # Check if there is any log for the same date and same shift
@@ -27,7 +31,7 @@ def createEquipmentLog(db: Session, log: EquipmentLogSchema, user_id: int):
         query = query.filter(DailyLog.created_by == user_id)
     if log.shift is not None:
         query = query.filter(DailyLog.shift == log.shift)
-    query = query.filter(func.date(DailyLog.created_at) == func.date(func.now()))  # Compare only date, not time
+    query = query.filter(func.date(DailyLog.created_at) == func.date(get_IST()))  # Compare only date, not time
     existing_log = query.first()
     print("after querrying daily log")
     if existing_log:
@@ -40,7 +44,9 @@ def createEquipmentLog(db: Session, log: EquipmentLogSchema, user_id: int):
                                maintenance_done=log.maintenance_done,
                                equipment_name=plant_equipment.equipment_name,
                                daily_log_id=existing_log.log_id, 
-                               created_by=user_id)
+                               created_by=user_id,
+                               created_at=get_IST()  # Use the IST function to set created_at
+        )
         print("after inserting new equipment log")
         plant_equipment.status = log.equipment_status
         db.add(new_log)
@@ -50,7 +56,7 @@ def createEquipmentLog(db: Session, log: EquipmentLogSchema, user_id: int):
     else:
         print("inside non existing log")
         # Create a daily log entry
-        new_daily_log = DailyLog(plant_id=plant_equipment.plant_id, shift=log.shift, created_by=user_id)
+        new_daily_log = DailyLog(plant_id=plant_equipment.plant_id, shift=log.shift, created_by=user_id,created_at=get_IST())  # Use the IST function to set created_at
         print("after inserting new log daily log")
         db.add(new_daily_log)
         db.commit()
@@ -63,7 +69,11 @@ def createEquipmentLog(db: Session, log: EquipmentLogSchema, user_id: int):
                                maintenance_done=log.maintenance_done,
                                equipment_name=plant_equipment.equipment_name,
                                daily_log_id=new_daily_log.log_id, 
-                               created_by=user_id)
+                               created_by=user_id,
+                               created_at=get_IST()  # Use the IST function to set created_at
+        )
+        print("after inserting new equipment log")
+        # Update the plant equipment status
         plant_equipment.status = log.equipment_status
         db.add(new_log)
         db.commit()
@@ -101,6 +111,7 @@ def updateEquipmentLogs(db: Session, log: EquipmentLogSchema, user_id: int) -> L
         equipment_log.maintenance_done = log.maintenance_done
     if log.shift is not None:
         equipment_log.shift = log.shift
+    equipment_log.updated_at = get_IST()  # Use the IST function to set updated_at
     db.commit()
     db.refresh(equipment_log)
 
@@ -111,5 +122,6 @@ def deleteEquipmentLog(db: Session, log: EquipmentLogSchema) -> bool:
     if not equipment_log:
         raise HTTPException(status_code=404, detail="Logs not found")
     equipment_log.del_flag = True
+    equipment_log.updated_at = get_IST()  # Use the IST function to set updated_at
     db.commit()
     return True

@@ -5,10 +5,10 @@ from app.models.base import Base
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.api import register_routes
-
+from app.logs.equipment.schedular.scheduledprocess import lifespan
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 
 @app.exception_handler(HTTPException)
