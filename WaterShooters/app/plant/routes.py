@@ -11,7 +11,7 @@ from app.plant.crud import (
     getAllPlantTypes
 )
 from datetime import date
-from app.plant.report import generate_plant_report_pdf
+from app.plant.report import generate_plant_report_pdf, generate_plant_report_csv
 from fastapi.responses import StreamingResponse
 from app.plant.schema import PlantSchema, PlantTypeSchema
 from app.database import get_db
@@ -103,4 +103,9 @@ def get_plant_types(
 def download_pdf_report(plant_id: int, start_date: date, end_date: date, db: Session = Depends(get_db)):
     pdf_data = generate_plant_report_pdf(db, plant_id, start_date, end_date)
     return StreamingResponse(io.BytesIO(pdf_data), media_type="application/pdf", headers={"Content-Disposition": "attachment; filename=plant_report.pdf"})
+
+@plantrouter.get("/report/csv")
+def download_csv_report(plant_id: int, start_date: date, end_date: date, db: Session = Depends(get_db)):
+    csv_data = generate_plant_report_csv(db, plant_id, start_date, end_date)
+    return StreamingResponse(io.BytesIO(csv_data), media_type="text/csv", headers={"Content-Disposition": "attachment; filename=plant_report.csv"})
 
