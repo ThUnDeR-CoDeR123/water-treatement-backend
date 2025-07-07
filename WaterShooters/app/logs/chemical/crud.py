@@ -95,6 +95,8 @@ def getChemicalLogs(db: Session, log: ChemicalLogSchema, user_id: int) -> List[C
         query = query.filter(func.date(EquipmentLog.created_at) >= log.start_date)
     elif log.end_date is not None:
         query = query.filter(func.date(EquipmentLog.created_at) <= log.end_date)
+    if log.created_at is not None:
+        query = query.filter(func.date(ChemicalLog.created_at) == func.date(log.created_at))
     chemicallogs = query.all()
 
     if not chemicallogs:

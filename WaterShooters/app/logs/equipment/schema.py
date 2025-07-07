@@ -14,5 +14,6 @@ class EquipmentLogSchema(BaseModel):
     shift : Optional[int]=0 #0 for morning, 1 for evening, 2 for night
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
+    created_at: Optional[datetime] = None
     class Config:
         from_attributes = True

@@ -88,6 +88,8 @@ def get_flow_logs(db: Session, log: FlowLogSchema) -> List[FlowLog]:
         query = query.filter(func.date(EquipmentLog.created_at) >= log.start_date)
     elif log.end_date is not None:
         query = query.filter(func.date(EquipmentLog.created_at) <= log.end_date)
+    if log.created_at is not None:
+        query = query.filter(func.date(FlowLog.created_at) == func.date(log.created_at))
     if log.shift is not None:
         query = query.filter(FlowLog.shift == log.shift)
         

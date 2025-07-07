@@ -91,6 +91,8 @@ def getEquipmentLogs(db: Session, log: EquipmentLogSchema, user_id: int) -> List
         query = query.filter(func.date(EquipmentLog.created_at) >= log.start_date)
     elif log.end_date is not None:
         query = query.filter(func.date(EquipmentLog.created_at) <= log.end_date)
+    if log.created_at is not None:
+        query = query.filter(func.date(EquipmentLog.created_at) == func.date(log.created_at))
     equipmentlogs = query.all()
 
     if not equipmentlogs:

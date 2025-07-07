@@ -90,6 +90,8 @@ def getFowParameterLogs(db: Session, log: FlowParameterLogSchema, user_id: int) 
         query = query.filter(func.date(EquipmentLog.created_at) >= log.start_date)
     elif log.end_date is not None:
         query = query.filter(func.date(EquipmentLog.created_at) <= log.end_date)
+    if log.created_at is not None:
+        query = query.filter(func.date(FlowParameterLog.created_at) == func.date(log.created_at))
     flowparameterlogs = query.all()
 
     if not flowparameterlogs:
