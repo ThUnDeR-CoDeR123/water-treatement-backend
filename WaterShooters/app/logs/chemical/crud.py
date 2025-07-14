@@ -23,7 +23,8 @@ def createChemicalLog(db: Session, log: ChemicalLogSchema, user_id: int):
     ).first()
     if not plant_chemical:
         raise HTTPException(status_code=404, detail="Plant chemical not found")
-
+    if plant_chemical.quantity < log.quantity_used:
+        raise HTTPException(status_code=400, detail="Insufficient chemical quantity")
     query = db.query(DailyLog).filter(DailyLog.del_flag == False)
     if plant_chemical.plant_id is not None:
         query = query.filter(DailyLog.plant_id == plant_chemical.plant_id)
