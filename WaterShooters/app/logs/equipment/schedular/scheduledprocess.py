@@ -12,7 +12,7 @@ def check_time_and_run():
     # Get current time in IST
     ist_time = datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
     # Check if current time is 22:00 (with a 1-minute window to avoid missing)
-    if ist_time.hour == 11:
+    if ist_time.hour == 22:
         print("It's 10 PM IST, running scheduled task...")
         try:
             add_equipment_log()
